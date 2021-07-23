@@ -1,0 +1,4 @@
+# Ignore these files/folders:
+node_modules
+tmp
+.tmp

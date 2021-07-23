@@ -1,0 +1,8 @@
+{
+  "predefined": {
+    "hello-world": "./stacks/hello-world"
+  },
+  "userDefined": {
+
+  }
+}
