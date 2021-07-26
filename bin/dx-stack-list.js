@@ -2,29 +2,30 @@
 
 const program = require('commander');
 const chalk = require('chalk');
-const stacks = require('../config/stacks.json');
+const { getStacks } = require('../src/stacks-manager');
 
-// Command options/help
-// none
-
-// Parse user input
 program
-  .parse(process.argv);
+  // Command arguments/options
+  // - none
 
-// Add padding before/after execution
-// console.log();
-// process.on('exit', () => {
-//   console.log();
-// });
+  // Help
+  // - use default help
 
-// Display currently installed stacks
-console.log(chalk.gray("Predefined stacks:"));
-for(var predefinedStack in stacks.predefined){
-  console.log(`${chalk.green(predefinedStack)}: ${stacks.predefined[predefinedStack]}`);
-}
+  // Action implementation
+  .action(async () => {
+    const stacks = getStacks();
 
-console.log();
-console.log(chalk.gray("User-defined stacks:"));
-for(var userDefinedStack in stacks.userDefined){
-  console.log(`${chalk.green(userDefinedStack)}: ${stacks.userDefined[userDefinedStack]}`);
-}
+    console.log(chalk.gray("Predefined stacks:"));
+    const predefinedStacks = stacks.filter(s => s.predefined);
+    console.table(predefinedStacks, ['name', 'location']);
+
+    console.log();
+    console.log(chalk.gray("User-defined stacks:"));
+    const userDefinedStacks = stacks.filter(s => !s.predefined);
+    console.table(userDefinedStacks, ['name', 'origin', 'location']);
+  });
+
+// Start processing
+program
+  .parseAsync(process.argv)
+  .catch(() => process.exit(-1));

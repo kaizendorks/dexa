@@ -1,10 +1,11 @@
 {
   "name": "dexa",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "dexa is a CLI tool that makes easy capturing your preferred tech stack as a project template with generators using a git repo",
   "main": "index.js",
   "bin": {
     "dx": "bin/dx.js",
+    "dx-init": "bin/dx-init.js",
     "dx-stack": "bin/dx-stack.js",
     "dx-stack-list": "bin/dx-stack-list.js"
   },
@@ -31,6 +32,7 @@
     "didyoumean": "1.2.2",
     "execa": "5.1.1",
     "glob": "7.1.7",
+    "handlebars": "4.7.7",
     "inquirer": "8.1.2"
   },
   "devDependencies": {

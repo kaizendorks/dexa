@@ -9,9 +9,9 @@ describe('command:dx-stack', () => {
   describe('list subcommand', () => {
     let commandResult;
 
-    before(() => execa('node', [cli, 'stack', 'list']).then(res => {
-      commandResult = res;
-    }));
+    before(async () => {
+      commandResult = await execa('node', [cli, 'stack', 'list'])
+    });
 
     it('succeeds', () => {
       expect(commandResult.exitCode).to.equal(0);

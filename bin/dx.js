@@ -11,11 +11,13 @@ program
   // .hook('preAction', (thisCommand, actionCommand) => console.log())
   // .hook('postAction', (thisCommand, actionCommand) => console.log())
   .command('stack', 'manages the different stacks. Each stack is made by a project template and its code generators')
+  .command('init', 'creates a new project using the specified stack')
   .parse(process.argv);
 
 // Catch all validation in case user mistypes the command
 const validCommands = [
   'stack',
+  'init'
 ];
 const commandName = program.args[0];
 
