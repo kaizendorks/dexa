@@ -4,7 +4,7 @@ const program = require('commander');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
-const { getStackNames } = require('../src/stacks-manager');
+const { getStackNames } = require('../src/stack-manager');
 const { confirm } = require('../src/user-prompts');
 const { renderInitTemplate } = require('../src/init');
 

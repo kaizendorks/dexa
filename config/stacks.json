@@ -1,8 +1,0 @@
-[
-  {
-    "name": "hello-world",
-    "predefined": true,
-    "origin": "./stacks/hello-world",
-    "locationPath": "./stacks/hello-world"
-  }
-]

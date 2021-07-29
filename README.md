@@ -6,7 +6,7 @@ Each of these stacks is captured as a git repository. Create them in a publicly 
 
 * [Introduction](#introduction)
     * [How can dexa help you?](#how-can-dexa-help-you)
-    * [Is it limited to JavaScript projects?](#how-does-it-work)
+    * [Is it limited to JavaScript projects?](#is-it-limited-to-javascript-projects)
 * [Installation](#installation)
 * [Usage](#usage)
 * [API](#api)
@@ -99,10 +99,11 @@ Init:
 - add custom helpers for the templates
 
 Stack:
-- add stack from git repo, using degit
-- move predefined stacks away from "stacks.json" (which should be gitignored and just created on save by stacks-manager)
-- add "init only" stack from git repo (ie, repo that doesnt have init/add/generate folders, the entire repo is just an init template)
-- remove stack
+- DONE add stack from git repo, using degit
+- DONE move predefined stacks away from "stacks.json" (which should be gitignored and just created on save by stacks-manager)
+- DONE add "init only" stack from git repo (ie, repo that doesnt have init/add/generate folders, the entire repo is just an init template)
+- DONE remove stack
+- Add tests for add/init/remove stack from git
 - manage versions of stacks (update stack, keep track of version used with project)
 - allow specifying a "path" inside the repo, to support repos defining multiple stacks
 
@@ -126,4 +127,4 @@ Stacks:
 
 ## License
 
-MIT © [Daniel Jimenez Garcia](https://danijg.github.io/)
+MIT © [by its authors](https://github.com/kaizendorks/dexa/graphs/contributors)
