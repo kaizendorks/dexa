@@ -4,6 +4,8 @@ dexa is a CLI tool that allows developers and teams to capture their preferred t
 
 Each of these stacks is captured as a git repository. Create them in a publicly available service such as Github to encourage usage and sharing across the wider community. But you are also free to use dexa with private repositories.
 
+> Requires **Node.js 14** or later!
+
 * [Introduction](#introduction)
     * [How can dexa help you?](#how-can-dexa-help-you)
     * [Is it limited to JavaScript projects?](#is-it-limited-to-javascript-projects)
