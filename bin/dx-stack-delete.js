@@ -2,12 +2,14 @@
 
 const program = require('commander');
 const chalk = require('chalk');
-const { getStackNames, deleteStackByName } = require('../src/stack-manager');
+const { getStacks, deleteStackByName } = require('../src/stack-manager');
 const { confirm } = require('../src/user-prompts');
+
+const stacksToDelete = getStacks().filter(s => !s.predefined).map(s => s.name);
 
 program
   // Command arguments/options
-  .addArgument(new program.Argument('<stackName>', 'name of the stack to be removed <required>, as per "dx stack list"').choices(getStackNames()))
+  .addArgument(new program.Argument('<name>', 'name of the stack to be removed <required>, as per "dx stack list"').choices(stacksToDelete))
 
   // Help
   // - use default help

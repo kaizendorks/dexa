@@ -116,9 +116,10 @@ Stack:
 - DONE move predefined stacks away from "stacks.json" (which should be gitignored and just created on save by stacks-manager)
 - DONE add "init only" stack from git repo (ie, repo that doesnt have init/add/generate folders, the entire repo is just an init template)
 - DONE remove stack
-- Add tests for add/init/remove stack from git
+- DONE Add tests for add/init/remove stack from git
+- DONE allow specifying a "path" inside the repo, to support repos defining multiple stacks
 - manage versions of stacks (update stack, keep track of version used with project)
-- allow specifying a "path" inside the repo, to support repos defining multiple stacks
+- once we have a repo with example stacks, repoint tests so we dont depend on 3rd party repos/templates that might change
 
 Add:
 - allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`

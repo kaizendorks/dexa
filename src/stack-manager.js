@@ -20,6 +20,7 @@ const addStackFromGit = async (name, gitRepoUrl, isPrivate = false) => {
 const deleteStackByName = async (name) => {
   const stack = getStackByname(name);
   if (!stack) throw new Error(`Stack ${name} does not exists`);
+  if (stack.predefined) throw new Error(`Stack ${name} is predefined and cant be removed`);
 
   await stack.cleanup();
 
