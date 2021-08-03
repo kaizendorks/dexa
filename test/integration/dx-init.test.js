@@ -5,7 +5,10 @@ const os = require('os');
 const execa = require('execa');
 const { promisify } = require('util');
 const glob = promisify(require('glob'));
-const expect = require('chai').expect;
+const chai = require('chai');
+const expect = chai.expect;
+chai.use(require('chai-shallow-deep-equal'));
+const Project = require('../../src/project');
 
 describe('command:dx-init', () => {
   const cli = path.join(__dirname, '../../bin/dx.js');
@@ -67,6 +70,7 @@ describe('command:dx-init', () => {
 
   describe('when using the default hello-world stack', () => {
     const expectedFiles = [
+      '.dexarc',
       '.gitignore',
       'index.js',
       'package.json',
@@ -74,12 +78,13 @@ describe('command:dx-init', () => {
     ];
 
     describe('can generate a project in the current folder', () => {
+      let projectName = 'in-current-folder';
       let projectFolder;
       let commandResult;
       let generatedFiles;
 
       before(async () => {
-        projectFolder = path.resolve(tempDir, 'in-current-folder');
+        projectFolder = path.resolve(tempDir, projectName);
         await fs.promises.mkdir(projectFolder, {recursive: true });
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
@@ -97,10 +102,45 @@ describe('command:dx-init', () => {
         });
       });
 
+      it('generated a dexarc file with the project and stack details', () => {
+        const project = Project.load(projectFolder);
+
+        expect(project).to.be.shallowDeepEqual({
+          name: projectName,
+          stackReference: {
+            name: 'hello-world',
+            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+          },
+          features: [],
+        });
+      });
+
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
           const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
           expect(generatedPackageJson.name).to.equal('in-current-folder');
+        });
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: 'hello-world',
+              predefined: true,
+              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            },
+            template: {
+              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+            },
+            userOptions: {
+              override: false
+            }
+          });
         });
 
         it('have the expected contents so we have a working node project', async () => {
@@ -134,10 +174,45 @@ describe('command:dx-init', () => {
         });
       });
 
+      it('generated a dexarc file with the project and stack details', () => {
+        const project = Project.load(projectFolder);
+
+        expect(project).to.be.shallowDeepEqual({
+          name: 'my-project',
+          stackReference: {
+            name: 'hello-world',
+            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+          },
+          features: [],
+        });
+      });
+
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
           const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
           expect(generatedPackageJson.name).to.equal(projectName);
+        });
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: 'hello-world',
+              predefined: true,
+              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            },
+            template: {
+              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+            },
+            userOptions: {
+              override: false
+            }
+          });
         });
 
         it('have the expected contents so we have a working node project', async () => {
@@ -171,10 +246,45 @@ describe('command:dx-init', () => {
         });
       });
 
+      it('generated a dexarc file with the project and stack details', () => {
+        const project = Project.load(projectFolder);
+
+        expect(project).to.be.shallowDeepEqual({
+          name: 'my-project-with-path',
+          stackReference: {
+            name: 'hello-world',
+            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+          },
+          features: [],
+        });
+      });
+
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
           const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
           expect(generatedPackageJson.name).to.equal(projectName);
+        });
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: 'hello-world',
+              predefined: true,
+              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            },
+            template: {
+              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+            },
+            userOptions: {
+              override: false
+            }
+          });
         });
 
         it('have the expected contents so we have a working node project', async () => {
@@ -218,6 +328,28 @@ describe('command:dx-init', () => {
         it('use the current folder name as the project name', async () => {
           const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
           expect(generatedPackageJson.name).to.equal(projectName);
+        });
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: 'hello-world',
+              predefined: true,
+              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            },
+            template: {
+              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+            },
+            userOptions: {
+              override: true
+            }
+          });
         });
 
         it('have the expected contents so we have a working node project', async () => {

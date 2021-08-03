@@ -2,13 +2,14 @@ const path = require('path');
 const fs = require('fs');
 const degit = require('degit');
 const config = require('../config/dexa.config');
+const Template = require('./template');
 
 const defaultValues = () => ({
   name: '',
   predefined: false,
   origin: '',
   locationPath: '',
-  version: '',
+  // version: '',
 });
 
 class Stack {
@@ -29,39 +30,66 @@ class Stack {
     // });
   }
 
-  // toJSON(){
-  //   return {
-
-  //   };
-  // }
-
-  loadTemplates() {
-    const templates = {
-      init: {},
-      add: [],
-      generate: [],
+  toJSON(){
+    return {
+      name: this.name,
+      predefined: this.predefined,
+      origin: this.origin,
+      locationPath: this.locationPath,
+      // version: this.version,
     };
+  }
 
-    templates.init.path = fs.existsSync(path.resolve(this.locationPath, './init')) ?
+  _getInitTemplate() {
+    // do we have a './init' folder or not? If not, the entire "stack folder" is the init template
+    const initPath = fs.existsSync(path.resolve(this.locationPath, './init')) ?
       './init' :
       './';
 
-    // TODO: load add/generate
-    // TODO: combine with settings in optional dexa.js file
+    // TODO: should templates be loaded as part of the constructor?
+    // TODO: combine with settings in optional dexa.js file at the root of the stack folder
+
+    return new Template({
+      path: path.resolve(this.locationPath, initPath),
+      stack: this,
+      preAction: null,
+      postAction: null,
+    });
+  }
+
+  _getAddTemplates() {
+    const templates = [];
+
+    // TODO: find all subfolders of the `./add' folder inside the stack
+    // TODO: combine with settings in optional dexa.js file at the root of the stack folder
     // TODO: override with settings in either .dexarc or .dexarc.js files in project root (where project model is passed as an optional parameter)
 
     return templates;
+  }
+
+  _getGenerateTemplates() {
+    const templates = [];
+
+    // TODO: find all subfolders of the `./add' folder inside the stack
+    // TODO: combine with settings in optional dexa.js file at the root of the stack folder
+    // TODO: override with settings in either .dexarc or .dexarc.js files in project root (where project model is passed as an optional parameter)
+
+    return templates;
+  }
+
+  async renderInitTemplate({ destinationPath, project, userOptions }){
+    const template = this._getInitTemplate();
+    return await template.render({
+      destinationPath,
+      project,
+      userOptions
+    });
   }
 
   async cleanup(){
     await fs.promises.rm(this.locationPath, {recursive: true, force: true});
   }
 
-  // TODO:
-
-  // - Inspect commands from current location and its dexa.js, loading init/add/generate command template locations and options
-
-  // - Merge commands with overriden options in the project .dexarc/.dexarc.js file
 }
 
 const predefinedStacks = [

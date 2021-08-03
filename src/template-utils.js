@@ -2,21 +2,12 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const Handlebars = require('handlebars');
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
 
-const getTemplateFiles = async (templatePath) => {
-  // Get all files in the template folders
-  const globExpression = path.resolve(templatePath, '**', '*');
-  // include dotfiles (like .gitignore) and exclude directories
-  return await glob(globExpression, { dot: true, nodir: true });
-};
-
-const getFileDestinationPath = (templatePath, filePath, destinationPath) => {
+const getFileDestinationPath = (templatePath, templateFilePath, destinationPath) => {
   // given a file like "/my/template/some/file.js"
   // we can generate its final destination path as in "/my/final/destination/some/file.js"
   // Note we remove the ".hbs" extension that marks it as a handlebars template
-  const fileRelativePathInsideTemplate = path.relative(templatePath, filePath);
+  const fileRelativePathInsideTemplate = path.relative(templatePath, templateFilePath);
   return path.resolve(destinationPath, fileRelativePathInsideTemplate).replace('.hbs', '');
 };
 
@@ -36,13 +27,18 @@ const copyFile = async (templateFilePath, destinationFilePath, userOptions) => {
   console.log(chalk.grey(`Copied ${destinationFilePath}`));
 };
 
+const handlebarsHelpers = {
+  json: (data) => JSON.stringify(data, null, 2)
+};
+
 const renderHandlebarsTemplateFile = async (
   templateFilePath,
   destinationFilePath,
   {
     project,
+    stack,
+    template,
     userOptions,
-    stack
   }
 ) => {
   // Compile template file into a handlebars template
@@ -51,8 +47,9 @@ const renderHandlebarsTemplateFile = async (
 
   // Render the file using the context data
   const renderedFile = handlebarsTemplate(
-    { project, userOptions, stack },
-    { helpers: {} }
+    { project, stack, template, userOptions },
+    // TODO: allow defining custom handlebars helpers as part of either stack or template
+    { helpers: handlebarsHelpers }
   );
 
   // Save the rendered file
@@ -63,31 +60,10 @@ const renderHandlebarsTemplateFile = async (
   console.log(chalk.grey(`Rendered ${destinationFilePath}`));
 };
 
-const renderTemplate = async (
-  templatePath,
-  destinationPath,
-  {
-    project,
-    userOptions,
-    stack
-  }
-) => {
-  const templateFiles = await getTemplateFiles(templatePath);
-
-  return Promise.all(templateFiles.map(async (templateFilePath) => {
-    const destinationFilePath = getFileDestinationPath(templatePath, templateFilePath, destinationPath);
-
-    // Ensure target directory exists
-    await ensureDir(destinationFilePath);
-
-    // either copy file or render using handlebars
-    return path.extname(templateFilePath) === '.hbs'
-      ? await renderHandlebarsTemplateFile(templateFilePath, destinationFilePath, { project, userOptions, stack})
-      : await copyFile(templateFilePath, destinationFilePath, userOptions);
-  }));
-};
-
 module.exports = {
-  renderTemplate,
+  getFileDestinationPath,
+  ensureDir,
+  copyFile,
+  renderHandlebarsTemplateFile,
 };
 

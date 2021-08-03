@@ -1,4 +1,4 @@
-const Stack = require('./stack.model');
+const Stack = require('./stack');
 
 let stacks = Stack.loadAll();
 

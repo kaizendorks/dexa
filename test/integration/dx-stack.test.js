@@ -1,4 +1,4 @@
-const Stack = require('../../src/stack.model');
+const Stack = require('../../src/stack');
 const config = require('../../config/dexa.config');
 const path = require('path');
 const fs = require('fs');

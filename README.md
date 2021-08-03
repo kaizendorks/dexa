@@ -104,10 +104,10 @@ TBC
 Init:
 - DONE - create project from one of the current stacks init template
 - DONE - add integration tests
-- introduce project/stack classes
-- create a dexarc file
+- DONE - introduce project/stack classes
+- DONE - create a dexarc file after generating the project
 - optionally create new git repo and first commit
-- add custom pre/post actions in dexa.js. Call same signature than the .action (since its based on defined arguments/options)
+- add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
 - override default action (render template) in dexa.js. In addition to parameters of pre/post actions, inject a `dexa` object with methods to for example render a template
 - add custom helpers for the templates
 
@@ -118,10 +118,12 @@ Stack:
 - DONE remove stack
 - DONE Add tests for add/init/remove stack from git
 - DONE allow specifying a "path" inside the repo, to support repos defining multiple stacks
-- manage versions of stacks (update stack, keep track of version used with project)
+- manage versions of stacks (update stack, keep track of version used with project). Stack version taken from the hash parameter of the source (as in `#v1.0.3`). Update command can be invoked as `dx stack update foo` so downloads and overrides the default version, or `dx stack update foo branch-or-tag` so it downloads version `#branch-or-tag`
 - once we have a repo with example stacks, repoint tests so we dont depend on 3rd party repos/templates that might change
 
 Add:
+- requires to be run in folder with `dexarc` file
+- automatically download stack if not currently installed
 - allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`
 - allow extra config/metadata to be defined in dexa.js. A `defineCommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
 - allow users to optionally include available "add" commands when initializing a project

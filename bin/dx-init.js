@@ -4,9 +4,9 @@ const program = require('commander');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
-const { getStackNames } = require('../src/stack-manager');
 const { confirm } = require('../src/user-prompts');
-const { renderInitTemplate } = require('../src/init');
+const { getStackNames, getStackByname } = require('../src/stack-manager');
+const Project = require('../src/project');
 
 const currentFolderName = path.basename(process.cwd());
 
@@ -32,7 +32,7 @@ Examples:
   `)
 
   // Action implementation
-  .action(async (stackName, projectName, { path: destinationPath, override }/*, command*/) => {
+  .action(async (stackName, projectName, { path: destinationPath, override = false }/*, command*/) => {
     const generateInCurrentFolder = projectName === currentFolderName && destinationPath === process.cwd();
     const fullDestinationPath = path.resolve(destinationPath, generateInCurrentFolder ? '' : projectName);
     const destinationExists = await fs.promises.stat(fullDestinationPath).catch(() => false);
@@ -47,11 +47,11 @@ Examples:
       if (!proceed) return;
     }
 
-    await renderInitTemplate({
-      stackName,
-      projectName,
-      fullDestinationPath,
-      override
+    await Project.init({
+      name: projectName,
+      stack: getStackByname(stackName),
+      destinationPath: fullDestinationPath,
+      userOptions: { override }
     });
   });
 
