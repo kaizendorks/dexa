@@ -141,6 +141,20 @@ Stacks:
 - predefined "init" only stack to create your own stack
 - vite + fastify stack
 
+Docs:
+- Move questions to FAQ
+- Usage - how to create stacks, folder structure, static and handlebar files
+- Usage - how to create stacks, optional dexa.js metadata
+- Usage - how to create stacks, use predefined `dx init dexa-stack` stack
+- Usage - managing stacks
+- Usage - using stacks, how to create a project with a stack
+- Usage - using stacks, how to invoke add/generate commands with a stack
+- API - stack definition, optional metadata structure
+- API - stack definition, parameters passed to handlebars files
+- Examples - predefined dexa-stack to create your own stacks
+- Examples - add `dexa-stacks` repository with stacks for: node-cli, vue-fastify, terraform
+- Create vuepress docs site
+
 ## License
 
 MIT © [by its authors](https://github.com/kaizendorks/dexa/graphs/contributors)
