@@ -10,14 +10,16 @@ program
   // these dont work with subcommands
   // .hook('preAction', (thisCommand, actionCommand) => console.log())
   // .hook('postAction', (thisCommand, actionCommand) => console.log())
-  .command('stack', 'manages the different stacks. Each stack is made by a project template and its code generators')
+  .command('add', 'adds stack features to a project')
   .command('init', 'creates a new project using the specified stack')
+  .command('stack', 'manages the different stacks. Each stack is made by a project template and its code generators')
   .parse(process.argv);
 
 // Catch all validation in case user mistypes the command
 const validCommands = [
+  'add',
+  'init',
   'stack',
-  'init'
 ];
 const commandName = program.args[0];
 

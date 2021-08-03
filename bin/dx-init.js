@@ -36,8 +36,6 @@ Examples:
     const generateInCurrentFolder = projectName === currentFolderName && destinationPath === process.cwd();
     const fullDestinationPath = path.resolve(destinationPath, generateInCurrentFolder ? '' : projectName);
     const destinationExists = await fs.promises.stat(fullDestinationPath).catch(() => false);
-    console.log(`stackName: ${stackName}, project: ${projectName}, folder: ${destinationPath}`);
-    console.log(fullDestinationPath);
 
     if (generateInCurrentFolder){
       const proceed = await confirm('Generate project in current directory?');

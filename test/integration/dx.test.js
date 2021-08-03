@@ -35,8 +35,9 @@ describe('command:dx', () => {
     });
 
     const expectedSubcommands = [
+      'add',
+      'init',
       'stack',
-      'init'
     ];
     expectedSubcommands.forEach(s => {
       it(`contains the ${s} subcommand`, () => {

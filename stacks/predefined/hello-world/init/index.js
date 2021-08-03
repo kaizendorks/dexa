@@ -1,3 +1,3 @@
 const { greet } = require('./src/greeter');
 
-greet('World');
+console.log(greet('World'));

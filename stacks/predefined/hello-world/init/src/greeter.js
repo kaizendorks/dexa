@@ -1,3 +1,3 @@
 module.exports = {
-  greet: (to) => console.log(`Hello ${to}!`)
+  greet: (to) => `Hello ${to}!`,
 };

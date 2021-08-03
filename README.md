@@ -101,6 +101,8 @@ TBC
 
 ## Roadmap
 
+Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
+
 Init:
 - DONE - create project from one of the current stacks init template
 - DONE - add integration tests
@@ -108,7 +110,7 @@ Init:
 - DONE - create a dexarc file after generating the project
 - optionally create new git repo and first commit
 - add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
-- override default action (render template) in dexa.js. In addition to parameters of pre/post actions, inject a `dexa` object with methods to for example render a template
+- override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
 - add custom helpers for the templates
 
 Stack:
@@ -120,26 +122,30 @@ Stack:
 - DONE allow specifying a "path" inside the repo, to support repos defining multiple stacks
 - manage versions of stacks (update stack, keep track of version used with project). Stack version taken from the hash parameter of the source (as in `#v1.0.3`). Update command can be invoked as `dx stack update foo` so downloads and overrides the default version, or `dx stack update foo branch-or-tag` so it downloads version `#branch-or-tag`
 - once we have a repo with example stacks, repoint tests so we dont depend on 3rd party repos/templates that might change
+- make the predefined hello-world a stack that only shows when enabling development/debug mode. Could be an environment variable, or check if process.env.npm_lifecycle_script exists and contains "mocha"?
 
 Add:
-- requires to be run in folder with `dexarc` file
+- DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
+- The command has to be run in a project folder previosly initialized with `dx init`. Specific error is returned if not
 - automatically download stack if not currently installed
-- allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`
-- allow extra config/metadata to be defined in dexa.js. A `defineCommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
+- allow extra config/metadata to be defined in dexa.js. A `defineCLICommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
 - allow users to optionally include available "add" commands when initializing a project
-- allow command to depend on other add commands (fail if not added before)
+- allow command to depend on other add commands (fail if not added before or prompt user to add?)
 
 Generate:
-- allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`
+- allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previosly initialized with `dx init`
 - allow extra config/metadata to be defined in dexa.js. A `defineCommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
+- allow command to depend on other add commands (fail if not added before or prompt user to add?)
 
 Overrides:
-- projects can override specific generators with a combination of dexarc and templates inside the .dexa folder
-- projects can add their own additional generators in a similar fashion
+- projects can override specific generators by adding a `.dexa` folder at its root, with a similar structure than that of a regular stack. Any generate commands defined here take precedence over default ones in the stack
+- projects can add their own additional generate commands in a similar fashion
 
 Stacks:
 - predefined "init" only stack to create your own stack
-- vite + fastify stack
+- commander CLI stack
+- vite + fastify stack (can init templates be replaced by invoking vue-cli and fastify-cli???)
+- terraform stack
 
 Docs:
 - Move questions to FAQ
@@ -149,7 +155,9 @@ Docs:
 - Usage - managing stacks
 - Usage - using stacks, how to create a project with a stack
 - Usage - using stacks, how to invoke add/generate commands with a stack
+- API - cli commands
 - API - stack definition, optional metadata structure
+- API - stack definition, arguments for metadata methods: defineCLICommand, pre/postAction, action
 - API - stack definition, parameters passed to handlebars files
 - Examples - predefined dexa-stack to create your own stacks
 - Examples - add `dexa-stacks` repository with stacks for: node-cli, vue-fastify, terraform

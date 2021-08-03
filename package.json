@@ -5,6 +5,7 @@
   "main": "index.js",
   "bin": {
     "dx": "bin/dx.js",
+    "dx-add": "bin/dx-add.js",
     "dx-init": "bin/dx-init.js",
     "dx-stack": "bin/dx-stack.js",
     "dx-stack-add": "bin/dx-stack-add.js",

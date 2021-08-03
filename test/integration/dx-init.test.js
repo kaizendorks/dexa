@@ -135,6 +135,7 @@ describe('command:dx-init', () => {
               locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
             },
             template: {
+              name: 'init',
               path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
             },
             userOptions: {
@@ -207,6 +208,7 @@ describe('command:dx-init', () => {
               locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
             },
             template: {
+              name: 'init',
               path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
             },
             userOptions: {
@@ -279,6 +281,7 @@ describe('command:dx-init', () => {
               locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
             },
             template: {
+              name: 'init',
               path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
             },
             userOptions: {
@@ -344,6 +347,7 @@ describe('command:dx-init', () => {
               locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
             },
             template: {
+              name: 'init',
               path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
             },
             userOptions: {

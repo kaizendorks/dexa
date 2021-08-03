@@ -40,7 +40,7 @@ class Stack {
     };
   }
 
-  _getInitTemplate() {
+  getInitTemplate() {
     // do we have a './init' folder or not? If not, the entire "stack folder" is the init template
     const initPath = fs.existsSync(path.resolve(this.locationPath, './init')) ?
       './init' :
@@ -50,6 +50,7 @@ class Stack {
     // TODO: combine with settings in optional dexa.js file at the root of the stack folder
 
     return new Template({
+      name: 'init',
       path: path.resolve(this.locationPath, initPath),
       stack: this,
       preAction: null,
@@ -57,20 +58,50 @@ class Stack {
     });
   }
 
-  _getAddTemplates() {
-    const templates = [];
+  getAddTemplates() {
+    let templates = [];
 
-    // TODO: find all subfolders of the `./add' folder inside the stack
+    // Each "dx add" template of the stack should be located inside the "./add" folder of the stack
+    const templatesLocation = path.resolve(this.locationPath, './add');
+    if (!fs.existsSync(templatesLocation)) return templates;
+
+    // Each template has its own subfolder where the template files are defined
+    templates = fs.readdirSync(templatesLocation)
+      .map(f => path.resolve(this.locationPath, './add', f)) // convert to full paths
+      .filter(f => fs.statSync(f).isDirectory()) // ensure they are directories
+      .map(f => new Template({
+        name: path.basename(f), // use folder name as the template name
+        path: f,
+        stack: this,
+        preAction: null,
+        postAction: null,
+      }));
+
     // TODO: combine with settings in optional dexa.js file at the root of the stack folder
     // TODO: override with settings in either .dexarc or .dexarc.js files in project root (where project model is passed as an optional parameter)
 
     return templates;
   }
 
-  _getGenerateTemplates() {
-    const templates = [];
+  getGenerateTemplates() {
+    let templates = [];
 
-    // TODO: find all subfolders of the `./add' folder inside the stack
+    // Each "dx generate" template of the stack should be located inside the "./generate" folder of the stack
+    const templatesLocation = path.resolve(this.locationPath, './generate');
+    if (!fs.existsSync(templatesLocation)) return templates;
+
+    // Each template has its own subfolder where the template files are defined
+    templates = fs.readdirSync(templatesLocation)
+      .map(f => path.resolve(this.locationPath, './generate', f))
+      .filter(f => fs.statSync(f).isDirectory())
+      .map(f => new Template({
+        name: path.parse(f).dir, // use folder name as the template name
+        path: f,
+        stack: this,
+        preAction: null,
+        postAction: null,
+      }));
+
     // TODO: combine with settings in optional dexa.js file at the root of the stack folder
     // TODO: override with settings in either .dexarc or .dexarc.js files in project root (where project model is passed as an optional parameter)
 
@@ -78,7 +109,7 @@ class Stack {
   }
 
   async renderInitTemplate({ destinationPath, project, userOptions }){
-    const template = this._getInitTemplate();
+    const template = this.getInitTemplate();
     return await template.render({
       destinationPath,
       project,

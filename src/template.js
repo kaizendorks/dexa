@@ -9,6 +9,7 @@ const {
 } = require('./template-utils');
 
 const defaultValues = () => ({
+  name: 'init',
   path: '',
   stack: {},
   postAction: null,
