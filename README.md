@@ -125,7 +125,7 @@ Init:
 DONE Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
 
 Stack:
-- allow adding stacks from local folders (not just git repos). Helps testing stacks themselves and also testing new features like prompt to install stack when execuring dx add commands.
+- DONE allow adding stacks from local folders (not just git repos). Helps testing stacks themselves and also testing new features like prompt to install stack when execuring dx add commands.
 
 Add:
 - DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.

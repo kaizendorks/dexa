@@ -120,6 +120,10 @@ class Stack {
   }
 
   async cleanup(){
+    // No need to cleanup stacks added from local folders
+    if (this.locationPath === this.origin) return;
+
+    // Stacks added from git are downloaded to the local locationPath, and we should remove the downloaded folder
     await fs.promises.rm(this.locationPath, {recursive: true, force: true});
   }
 
@@ -131,7 +135,6 @@ const predefinedStacks = [
     predefined: true,
     origin: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
     locationPath: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
-    init: './init',
   })
 ];
 
@@ -158,8 +161,9 @@ Stack.saveAll = async (stackModels) => {
   });
 };
 
-Stack.newFromGit = async (name, gitRepoUrl, isPrivate = false) => {
-  const gitRepo = degit(gitRepoUrl, {
+Stack.newFromGit = async (name, origin, isPrivate = false) => {
+  // Origin is a git repo in github/gitlab/bitbucket, download using degit
+  const gitRepo = degit(origin, {
     mode: isPrivate ? 'git' : 'tar',
     force: true
   });
@@ -169,10 +173,18 @@ Stack.newFromGit = async (name, gitRepoUrl, isPrivate = false) => {
 
   return new Stack({
     name,
-    origin: gitRepoUrl,
+    origin,
     locationPath,
     private: isPrivate,
     // version:
+  });
+};
+
+Stack.newFromLocalFolder = async (name, origin) => {
+  return new Stack({
+    name,
+    origin,
+    locationPath: origin,
   });
 };
 

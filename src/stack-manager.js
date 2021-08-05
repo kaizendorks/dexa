@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import Stack from './stack.js';
 import { StackAlreadyExistsError, StackDoesNotExistsError } from './errors.js';
 
@@ -9,12 +11,17 @@ const getStackNames = () => stacks.map(s => s.name);
 
 const getStackByname = (name) => stacks.find(s => s.name === name);
 
-const addStackFromGit = async (name, gitRepoUrl, isPrivate = false) => {
+const addNewStack = async (name, origin, isPrivate = false) => {
   if (getStackByname(name)) throw new StackAlreadyExistsError(name);
 
-  const stack = await Stack.newFromGit(name, gitRepoUrl, isPrivate);
-  stacks.push(stack);
+  // We can either receive a local folder as origin, or a remote github/gitlab/bitbucket repo URL
+  // Let's check if origin is a local folder that exists, otherwise assume git repo
+  const isLocalFolder = await fs.promises.stat(path.resolve(origin)).catch(() => false);
+  const stack = isLocalFolder ?
+    await Stack.newFromLocalFolder(name, path.resolve(origin)) :
+    await Stack.newFromGit(name, origin, isPrivate);
 
+  stacks.push(stack);
   await Stack.saveAll(stacks);
 
   return stack;
@@ -35,6 +42,6 @@ export {
   getStacks,
   getStackNames,
   getStackByname,
-  addStackFromGit,
+  addNewStack,
   deleteStackByName,
 };

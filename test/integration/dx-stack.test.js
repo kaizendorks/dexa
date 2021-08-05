@@ -15,11 +15,16 @@ const testStacks = {
   },
   fromGit: {
     name: 'vue-vite-tailwind',
-    source: 'https://github.com/web2033/vite-vue3-tailwind-starter'
+    origin: 'https://github.com/web2033/vite-vue3-tailwind-starter'
   },
   fromGitAndPath: {
     name: 'vue-vite',
-    source: 'https://github.com/vitejs/vite/packages/create-vite/template-vue'
+    origin: 'https://github.com/vitejs/vite/packages/create-vite/template-vue'
+  },
+  fromLocalFolder: {
+    // We can add with an alternative name one of the predefined stacks, so we can test we can "dx stack add" from local folders
+    name: 'from-local-folder',
+    origin: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
   }
 };
 
@@ -49,13 +54,13 @@ describe('command:dx-stack', () => {
         commandResult = await execa('node', [cli, 'stack', 'add', 'my-new-stack'], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
-        expect(commandResult.stderr).to.contain("error: missing required argument 'gitRepoUrl'");
+        expect(commandResult.stderr).to.contain("error: missing required argument 'origin'");
       });
     });
 
     describe('when pointed at a git repository', () => {
       before(async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGit.name, 'https://github.com/web2033/vite-vue3-tailwind-starter'])
+        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGit.name, testStacks.fromGit.origin])
       });
 
       it('succeeds', () => {
@@ -84,7 +89,7 @@ describe('command:dx-stack', () => {
 
     describe('when pointed at a path inside a git repository', () => {
       before(async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGitAndPath.name, 'https://github.com/vitejs/vite/packages/create-vite/template-vue'])
+        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGitAndPath.name, testStacks.fromGitAndPath.origin])
       });
 
       it('succeeds', () => {
@@ -108,6 +113,22 @@ describe('command:dx-stack', () => {
         expect(commandResult.exitCode).to.equal(0);
       });
     });
+
+    describe('when pointed at a local folder', () => {
+      before(async () => {
+        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromLocalFolder.name, testStacks.fromLocalFolder.origin])
+      });
+
+      it('succeeds', () => {
+        expect(commandResult.exitCode).to.equal(0);
+      });
+
+      it('the stack can be used with the init command', async () => {
+        const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
+        commandResult = await execa('node', [cli, 'init', testStacks.fromLocalFolder.name], { input });
+        expect(commandResult.exitCode).to.equal(0);
+      });
+    });
   });
 
   describe('list subcommand', () => {
@@ -127,7 +148,13 @@ describe('command:dx-stack', () => {
 
     it('returns expected user-defined stacks', () => {
       expect(commandResult.stdout).to.contain(testStacks.fromGitAndPath.name);
+      expect(commandResult.stdout).to.contain(testStacks.fromGitAndPath.origin);
+
       expect(commandResult.stdout).to.contain(testStacks.fromGit.name);
+      expect(commandResult.stdout).to.contain(testStacks.fromGit.origin);
+
+      expect(commandResult.stdout).to.contain(testStacks.fromLocalFolder.name);
+      expect(commandResult.stdout).to.contain(testStacks.fromLocalFolder.origin);
     });
   });
 
@@ -220,6 +247,44 @@ describe('command:dx-stack', () => {
         const folderExists = await fs.promises.stat(stackLocation).catch(() => false);
 
         expect(folderExists).to.be.false;
+      });
+    });
+
+    describe('with a stack that was added from a local folder', () => {
+      let commandResult;
+
+      before(async () => {
+        const input = "Y\n"; // simulate user confirming deletion
+        commandResult = await execa('node', [cli, 'stack', 'delete', testStacks.fromLocalFolder.name], { input });
+      });
+
+      it('succeeds', () => {
+        expect(commandResult.exitCode).to.equal(0);
+      });
+
+      it('the stack cannot be used with the init command', async () => {
+        const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
+        commandResult = await execa('node', [cli, 'init', testStacks.fromLocalFolder.name], { input, reject:false });
+        expect(commandResult.exitCode).to.equal(1);
+        expect(commandResult.stderr).to.contain(`command-argument value '${testStacks.fromLocalFolder.name}' is invalid for argument 'stackName'`);
+      });
+
+      it('the stack no longer appears in the list command', async () => {
+        commandResult = await execa('node', [cli, 'stack', 'list']);
+        expect(commandResult.exitCode).to.equal(0);
+        expect(commandResult.stdout).not.to.contain(testStacks.fromLocalFolder.name);
+      });
+
+      it('the original local folder has not been removed nor cleaned up', async () => {
+        const stackOrigin = testStacks.fromLocalFolder.origin;
+        const stackFiles = await glob(path.resolve(testStacks.fromLocalFolder.origin, '**', '*'), { dot: true, nodir: true });
+
+        expect(stackFiles).to.include.members([
+          path.resolve(stackOrigin, 'init/package.json.hbs'),
+          path.resolve(stackOrigin, 'init/index.js'),
+          path.resolve(stackOrigin, 'init/src/greeter.js'),
+          path.resolve(stackOrigin, 'add/unit-test/test/greeter.test.js'),
+        ]);
       });
     });
 

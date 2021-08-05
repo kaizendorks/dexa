@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import Project from '../src/project.js';
 import { getStackByname } from '../src/stack-manager.js';
 import { confirm } from '../src/user-prompts.js';
-import { addStackFromGit } from '../src/stack-manager.js';
+import { addNewStack } from '../src/stack-manager.js';
 import { errorHandler } from '../src/errors.js';
 
 async function main(){
@@ -20,7 +20,7 @@ async function main(){
     const shouldDownloadStack = await confirm(`The stack ${project.stackReference.name} is not installed locally. Do you want to add it?`);
     if (!shouldDownloadStack) return;
 
-    stack = await addStackFromGit(project.stackReference.name, project.stackReference.origin, project.stackReference.private);
+    stack = await addNewStack(project.stackReference.name, project.stackReference.origin, project.stackReference.private);
   }
 
   // Configure one command for each of the "add" templates

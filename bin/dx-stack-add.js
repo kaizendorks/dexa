@@ -2,14 +2,14 @@
 
 import program from 'commander';
 import chalk from 'chalk';
-import { addStackFromGit } from '../src/stack-manager.js';
+import { addNewStack } from '../src/stack-manager.js';
 import { errorHandler } from '../src/errors.js';
 
 async function main(){
   program
     // Command arguments/options
     .argument('<name>', 'name of the new stack <required>.')
-    .argument('<gitRepoUrl>', 'url of the git repository that contains the stack <required>.')
+    .argument('<origin>', 'either url of a git repository or a path to a local folder <required>.')
     .option('--private', 'enable usage of git+ssh with your ssh credentials to access private repositories.')
 
     // Help
@@ -26,11 +26,14 @@ async function main(){
 
     ${chalk.grey('# create a new stack named "vue-vite" from a private repository. (Note it will use ssh and needs you to have ssh keys configured)')}
     $ dx stack add vue-vite https://github.com/my-company/some-private-repo --private
+
+    ${chalk.grey('# create a new stack named "my-stack" from a local folder. This is very useful when creating your own stacks so you can test them!')}
+    $ dx stack add my-stack /some/local/folder
     `)
 
     // Action implementation
-    .action(async (name, gitRepoUrl, { private: isPrivate }) => {
-      await addStackFromGit(name, gitRepoUrl, isPrivate );
+    .action(async (name, origin, { private: isPrivate }) => {
+      await addNewStack(name, origin, isPrivate );
       console.log(chalk.green(`Stack ${name} added!`));
     });
 
