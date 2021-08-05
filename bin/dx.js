@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const didYouMean = require('didyoumean');
-const chalk = require('chalk');
+import program from 'commander';
+import didYouMean from 'didyoumean';
+import chalk from 'chalk';
+import config from '../config/dexa.config.js';
 
 program
-  .version(require('../package.json').version, '-v, --version')
+  .version(config.version, '-v, --version')
   .usage('<command> [options]')
   // these dont work with subcommands
   // .hook('preAction', (thisCommand, actionCommand) => console.log())

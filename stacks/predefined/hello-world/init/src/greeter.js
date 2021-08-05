@@ -1,3 +1,5 @@
-module.exports = {
-  greet: (to) => `Hello ${to}!`,
+const greet = (to) => `Hello ${to}!`;
+
+export {
+  greet,
 };

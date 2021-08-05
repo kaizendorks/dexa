@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
-const degit = require('degit');
-const config = require('../config/dexa.config');
-const Template = require('./template');
+import path from 'path';
+import fs from 'fs';
+import degit from 'degit';
+import config from '../config/dexa.config.js';
+import Template from './template.js';
 
 const defaultValues = () => ({
   name: '',
@@ -135,8 +135,11 @@ const predefinedStacks = [
 
 Stack.loadAll = () => {
   // load user-defined stacks from the file DB
+  let userDefinedStacks = [];
   const dbFileExists = fs.existsSync(config.stacks.databaseJSONFile);
-  const userDefinedStacks = dbFileExists ? require(config.stacks.databaseJSONFile) : [];
+  if(dbFileExists){
+    userDefinedStacks = JSON.parse(fs.readFileSync(config.stacks.databaseJSONFile));
+  }
 
   // Convert them to stack objects and merge them with the predefined stacks
   return predefinedStacks.concat(
@@ -170,4 +173,4 @@ Stack.newFromGit = async (name, gitRepoUrl, isPrivate = false) => {
   });
 };
 
-module.exports = Stack;
+export default Stack;

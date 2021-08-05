@@ -1,17 +1,19 @@
-
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
-const execa = require('execa');
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
-const chai = require('chai');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import execa from 'execa';
+import { promisify } from 'util';
+import g from 'glob';
+const glob = promisify(g);
+import chai from 'chai';
+import shallowDeepEqual from 'chai-shallow-deep-equal';
 const expect = chai.expect;
-chai.use(require('chai-shallow-deep-equal'));
-const Project = require('../../src/project');
+chai.use(shallowDeepEqual);
+import { URL } from 'url';
+import Project from '../../src/project.js';
 
 describe('command:dx-add', () => {
-  const cli = path.join(__dirname, '../../bin/dx.js');
+  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
   let tempDir;
 
   before(async () => {
@@ -78,7 +80,7 @@ describe('command:dx-add', () => {
       let generatedFiles;
       const expectedFiles = [
         './test/greeter.test.js',
-        '.dx-add-args-trap.json',
+        '.dx-add-args-trap.js',
       ];
 
       before(async () => {
@@ -103,7 +105,7 @@ describe('command:dx-add', () => {
           name: projectName,
           stackReference: {
             name: 'hello-world',
-            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
           },
           features: ['unit-test'],
         });
@@ -112,7 +114,7 @@ describe('command:dx-add', () => {
       describe('the generated template files', () => {
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const argsInHandlebarsTemplates = require(path.resolve(projectFolder, '.dx-add-args-trap.json'));
+          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, '.dx-add-args-trap.js'));
           expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -121,12 +123,12 @@ describe('command:dx-add', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'unit-test',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/add/unit-test'),
+              path: new URL('../../stacks/predefined/hello-world/add/unit-test', import.meta.url).pathname,
             },
             userOptions: {}
           });
@@ -165,7 +167,7 @@ describe('command:dx-add', () => {
       describe('the generated and overridden template files', () => {
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const argsInHandlebarsTemplates = require(path.resolve(projectFolder, '.dx-add-args-trap.json'));
+          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, '.dx-add-args-trap.js'));
           expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -174,12 +176,12 @@ describe('command:dx-add', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'unit-test',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/add/unit-test'),
+              path: new URL('../../stacks/predefined/hello-world/add/unit-test', import.meta.url).pathname,
             },
             userOptions: {
               override: true

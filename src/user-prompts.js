@@ -1,4 +1,4 @@
-const inquirer = require('inquirer');
+import inquirer from 'inquirer';
 
 const confirm = async (message) => {
   const answer = await inquirer.prompt([{
@@ -10,6 +10,6 @@ const confirm = async (message) => {
   return answer.ok;
 };
 
-module.exports = {
+export {
   confirm,
 };

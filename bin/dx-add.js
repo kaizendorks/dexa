@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const chalk = require('chalk');
-const Project = require('../src/project');
-const { getStackByname } = require('../src/stack-manager');
-const { errorHandler } = require('../src/errors');
+import program from 'commander';
+import chalk from 'chalk';
+import Project from '../src/project.js';
+import { getStackByname } from '../src/stack-manager.js';
+import { errorHandler } from '../src/errors.js';
 
 async function main(){
   // Load the project from the current folder (will fail if the current folder isnt a project initialized with dexa)

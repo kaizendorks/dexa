@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const chalk = require('chalk');
-const { getStacks } = require('../src/stack-manager');
-const { errorHandler } = require('../src/errors');
+import program from 'commander';
+import chalk from 'chalk';
+import { getStacks } from '../src/stack-manager.js';
+import { errorHandler } from '../src/errors.js';
 
 async function main(){
   program

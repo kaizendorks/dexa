@@ -122,7 +122,7 @@ Init:
 - DONE - create a dexarc file after generating the project
 
 ### 0.3.0 - IN PROGRESS
-Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
+DONE Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
 
 Add:
 - DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
@@ -130,7 +130,7 @@ Add:
 - automatically download stack if not currently installed
 
 Generate:
-- allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previosly initialized with `dx init`
+- allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
 
 ### 0.4.0
 

@@ -1,11 +1,13 @@
-const Stack = require('../../src/stack');
-const config = require('../../config/dexa.config');
-const path = require('path');
-const fs = require('fs');
-const execa = require('execa');
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
-const expect = require('chai').expect;
+import path from 'path';
+import fs from 'fs';
+import execa from 'execa';
+import { promisify } from 'util';
+import g from 'glob';
+const glob = promisify(g);
+import { expect } from 'chai';
+import { URL } from 'url';
+import config from '../../config/dexa.config.js';
+import Stack from '../../src/stack.js';
 
 const testStacks = {
   predefined: {
@@ -22,7 +24,7 @@ const testStacks = {
 };
 
 describe('command:dx-stack', () => {
-  const cli = path.join(__dirname, '../../bin/dx.js');
+  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
 
   before(async () => {
     if (fs.existsSync(config.stacks.databaseJSONFile)){

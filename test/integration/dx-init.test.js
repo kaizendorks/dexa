@@ -1,17 +1,23 @@
 
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
-const execa = require('execa');
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
-const chai = require('chai');
-const expect = chai.expect;
-chai.use(require('chai-shallow-deep-equal'));
-const Project = require('../../src/project');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import execa from 'execa';
+import { promisify } from 'util';
+import g from 'glob';
+const glob = promisify(g);
+import { use as chaiUse, expect} from 'chai';
+import shallowDeepEqual from 'chai-shallow-deep-equal';
+chaiUse(shallowDeepEqual);
+import { URL } from 'url';
+import Project from '../../src/project.js';
+
+const loadPackageJson = (projectFolder) => {
+  return JSON.parse(fs.readFileSync(path.resolve(projectFolder, 'package.json')));
+}
 
 describe('command:dx-init', () => {
-  const cli = path.join(__dirname, '../../bin/dx.js');
+  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
   let tempDir;
 
   before(async () => {
@@ -109,7 +115,7 @@ describe('command:dx-init', () => {
           name: projectName,
           stackReference: {
             name: 'hello-world',
-            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
           },
           features: [],
         });
@@ -117,12 +123,12 @@ describe('command:dx-init', () => {
 
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.name).to.equal('in-current-folder');
         });
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -131,12 +137,12 @@ describe('command:dx-init', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'init',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
             },
             userOptions: {
               override: false
@@ -182,7 +188,7 @@ describe('command:dx-init', () => {
           name: 'my-project',
           stackReference: {
             name: 'hello-world',
-            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
           },
           features: [],
         });
@@ -190,12 +196,12 @@ describe('command:dx-init', () => {
 
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.name).to.equal(projectName);
         });
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -204,12 +210,12 @@ describe('command:dx-init', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'init',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
             },
             userOptions: {
               override: false
@@ -255,7 +261,7 @@ describe('command:dx-init', () => {
           name: 'my-project-with-path',
           stackReference: {
             name: 'hello-world',
-            origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
           },
           features: [],
         });
@@ -263,12 +269,12 @@ describe('command:dx-init', () => {
 
       describe('the generated project files', () => {
         it('use the current folder name as the project name', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.name).to.equal(projectName);
         });
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -277,12 +283,12 @@ describe('command:dx-init', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'init',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
             },
             userOptions: {
               override: false
@@ -329,12 +335,12 @@ describe('command:dx-init', () => {
 
       describe('the generated and overridden project files', () => {
         it('use the current folder name as the project name', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.name).to.equal(projectName);
         });
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const generatedPackageJson = require(path.resolve(projectFolder, 'package.json'));
+          const generatedPackageJson = loadPackageJson(projectFolder);
           expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -343,12 +349,12 @@ describe('command:dx-init', () => {
             stack: {
               name: 'hello-world',
               predefined: true,
-              origin: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
-              locationPath: path.resolve(__dirname, '../../stacks/predefined/hello-world'),
+              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
             },
             template: {
               name: 'init',
-              path: path.resolve(__dirname, '../../stacks/predefined/hello-world/init'),
+              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
             },
             userOptions: {
               override: true

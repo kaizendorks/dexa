@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
-const config = require('../config/dexa.config');
-const chalk = require('chalk');
-const { CurrentFolderIsNotADexaProjectError } = require('./errors');
+import path from 'path';
+import fs from 'fs';
+import chalk from 'chalk';
+import config from '../config/dexa.config.js';
+import { CurrentFolderIsNotADexaProjectError } from './errors.js';
 
 const defaultValues = () => ({
   name: '',
@@ -80,4 +80,4 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
   return project;
 };
 
-module.exports = Project;
+export default Project;

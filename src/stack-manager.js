@@ -1,5 +1,5 @@
-const Stack = require('./stack');
-const { StackAlreadyExistsError, StackDoesNotExistsError } = require('./errors');
+import Stack from './stack.js';
+import { StackAlreadyExistsError, StackDoesNotExistsError } from './errors.js';
 
 let stacks = Stack.loadAll();
 
@@ -29,7 +29,7 @@ const deleteStackByName = async (name) => {
   await Stack.saveAll(stacks);
 };
 
-module.exports = {
+export {
   getStacks,
   getStackNames,
   getStackByname,

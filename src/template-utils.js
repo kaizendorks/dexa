@@ -1,7 +1,7 @@
-const path = require('path');
-const fs = require('fs');
-const chalk = require('chalk');
-const Handlebars = require('handlebars');
+import path from 'path';
+import fs from 'fs';
+import chalk from 'chalk';
+import Handlebars from 'handlebars';
 
 const getFileDestinationPath = (templatePath, templateFilePath, destinationPath) => {
   // given a file like "/my/template/some/file.js"
@@ -60,7 +60,7 @@ const renderHandlebarsTemplateFile = async (
   console.log(chalk.grey(`Rendered ${destinationFilePath}`));
 };
 
-module.exports = {
+export {
   getFileDestinationPath,
   ensureDir,
   copyFile,

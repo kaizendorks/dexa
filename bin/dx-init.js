@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const chalk = require('chalk');
-const path = require('path');
-const fs = require('fs');
-const { confirm } = require('../src/user-prompts');
-const { getStackNames, getStackByname } = require('../src/stack-manager');
-const Project = require('../src/project');
-const { errorHandler } = require('../src/errors');
+import program from 'commander';
+import chalk from 'chalk';
+import path from 'path';
+import fs from 'fs';
+import Project from '../src/project.js';
+import { getStackNames, getStackByname } from '../src/stack-manager.js';
+import { confirm } from '../src/user-prompts.js';
+import { errorHandler } from '../src/errors.js';
 
 async function main(){
   const currentFolderName = path.basename(process.cwd());

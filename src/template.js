@@ -1,12 +1,13 @@
-const path = require('path');
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
-const {
+import path from 'path';
+import { promisify } from 'util';
+import g from 'glob';
+const glob = promisify(g);
+import {
   getFileDestinationPath,
   ensureDir,
   copyFile,
   renderHandlebarsTemplateFile,
-} = require('./template-utils');
+} from './template-utils.js';
 
 const defaultValues = () => ({
   name: 'init',
@@ -92,4 +93,4 @@ class Template {
 
 }
 
-module.exports = Template;
+export default Template;

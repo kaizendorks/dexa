@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const chalk = require('chalk');
-const { getStacks, deleteStackByName } = require('../src/stack-manager');
-const { confirm } = require('../src/user-prompts');
-const { errorHandler } = require('../src/errors');
+import program from 'commander';
+import chalk from 'chalk';
+import { getStacks, deleteStackByName } from '../src/stack-manager.js';
+import { confirm } from '../src/user-prompts.js';
+import { errorHandler } from '../src/errors.js';
 
 async function main(){
   const stacksToDelete = getStacks().filter(s => !s.predefined).map(s => s.name);

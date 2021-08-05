@@ -1,5 +1,5 @@
-const chalk = require('chalk');
-const config = require('../config/dexa.config');
+import chalk from 'chalk';
+import config from '../config/dexa.config.js';
 
 class DexaError extends Error {}
 
@@ -33,7 +33,7 @@ const errorHandler = (e) => {
   }
 };
 
-module.exports = {
+export {
   DexaError,
   CurrentFolderIsNotADexaProjectError,
   StackAlreadyExistsError,
