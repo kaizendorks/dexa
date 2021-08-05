@@ -136,6 +136,7 @@ Generate:
 
 Init:
 - optionally create new git repo and first commit
+- ad optional description for stack in dexa.js, use it as `program.description` when wiring all the `dx init` commands. (would need to refactor current dx-add.js to create a command per stack)
 - add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
 - override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
 

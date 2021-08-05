@@ -1,19 +1,22 @@
 import fs from 'fs';
+import path from 'path';
 import { URL } from 'url';
 
-const packageJSON = JSON.parse(
-  fs.readFileSync(new URL('../package.json', import.meta.url).pathname));
+const dexaRoot = new URL('../', import.meta.url).pathname;
+const packageJSON = JSON.parse(fs.readFileSync(
+  path.resolve(dexaRoot, 'package.json')));
 
 export default {
+  dexaRoot,
   version: packageJSON.version,
   project: {
     rcfile: '.dexarc',
     cusomizationsFolder: '.dexa'
   },
   stacks: {
-    predefinedStacksLocation: new URL('../stacks/predefined', import.meta.url).pathname,
-    userDefinedStacksLocation: new URL('../stacks/user-defined', import.meta.url).pathname,
-    databaseJSONFile: new URL('./stacks.json', import.meta.url).pathname,
+    predefinedStacksLocation: path.resolve(dexaRoot, './stacks/predefined'),
+    userDefinedStacksLocation: path.resolve(dexaRoot, './stacks/user-defined'),
+    databaseJSONFile: path.resolve(dexaRoot, './config/stacks.json'),
   },
 
 };

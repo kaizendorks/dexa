@@ -11,6 +11,12 @@ import shallowDeepEqual from 'chai-shallow-deep-equal';
 chaiUse(shallowDeepEqual);
 import { URL } from 'url';
 import Project from '../../src/project.js';
+import config from '../../config/dexa.config.js';
+
+const testStack = {
+  name: 'hello-world',
+  location: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
+};
 
 const loadPackageJson = (projectFolder) => {
   return JSON.parse(fs.readFileSync(path.resolve(projectFolder, 'package.json')));
@@ -47,7 +53,7 @@ describe('command:dx-init', () => {
   describe('when the destination folder exists', () => {
     it('asks for confirmation when generating a project in the current folder', async () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
-      const commandResult = await execa('node', [cli, 'init', 'hello-world'], { cwd: tempDir, input });
+      const commandResult = await execa('node', [cli, 'init', testStack.name], { cwd: tempDir, input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.contain("Generate project in current directory? (Y/n)");
@@ -57,7 +63,7 @@ describe('command:dx-init', () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
       const folderToRunCommand = path.resolve(tempDir, '..'); // run "dx init" in the parent folder of the generated temp folder
       const projectName = path.basename(tempDir); // using the name of the temp folder as the project name, thus ensuring there is already a folder with that name
-      const commandResult = await execa('node', [cli, 'init', 'hello-world', projectName], { cwd: folderToRunCommand, input });
+      const commandResult = await execa('node', [cli, 'init', testStack.name, projectName], { cwd: folderToRunCommand, input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.match(/Target directory exists .* Continue\?/s);
@@ -67,7 +73,7 @@ describe('command:dx-init', () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
       const folderToCreateProject = path.resolve(tempDir, '..'); // run "dx init -p" pointing to the the parent folder of the generated temp folder
       const projectName = path.basename(tempDir); // using the name of the temp folder as the project name, thus ensuring there is already a folder with that name
-      const commandResult = await execa('node', [cli, 'init', 'hello-world', projectName, '-p', folderToCreateProject], { input });
+      const commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '-p', folderToCreateProject], { input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.match(/Target directory exists .* Continue\?/s);
@@ -94,7 +100,7 @@ describe('command:dx-init', () => {
         await fs.promises.mkdir(projectFolder, {recursive: true });
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', 'hello-world'], { cwd: projectFolder, input });
+        commandResult = await execa('node', [cli, 'init', testStack.name], { cwd: projectFolder, input });
         generatedFiles = await glob(path.resolve(projectFolder, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -114,8 +120,8 @@ describe('command:dx-init', () => {
         expect(project).to.be.shallowDeepEqual({
           name: projectName,
           stackReference: {
-            name: 'hello-world',
-            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+            name: testStack.name,
+            origin: testStack.location,
           },
           features: [],
         });
@@ -135,14 +141,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: 'hello-world',
+              name: testStack.name,
               predefined: true,
-              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
-              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              origin: testStack.location,
+              locationPath: testStack.location,
             },
             template: {
               name: 'init',
-              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
+              path: path.resolve(testStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -167,7 +173,7 @@ describe('command:dx-init', () => {
         projectFolder = path.resolve(tempDir, projectName);
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', 'hello-world', projectName], { cwd: tempDir, input });
+        commandResult = await execa('node', [cli, 'init', testStack.name, projectName], { cwd: tempDir, input });
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -187,8 +193,8 @@ describe('command:dx-init', () => {
         expect(project).to.be.shallowDeepEqual({
           name: 'my-project',
           stackReference: {
-            name: 'hello-world',
-            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+            name: testStack.name,
+            origin: testStack.location,
           },
           features: [],
         });
@@ -208,14 +214,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: 'hello-world',
+              name: testStack.name,
               predefined: true,
-              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
-              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              origin: testStack.location,
+              locationPath: testStack.location,
             },
             template: {
               name: 'init',
-              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
+              path: path.resolve(testStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -240,7 +246,7 @@ describe('command:dx-init', () => {
         projectFolder = path.resolve(tempDir, projectName);
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', 'hello-world', projectName, '-p', tempDir], { input }); // instead of executing the command using tempDir as the "cwd", we use the "-p" parameter allowed by the dx init command
+        commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '-p', tempDir], { input }); // instead of executing the command using tempDir as the "cwd", we use the "-p" parameter allowed by the dx init command
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -260,8 +266,8 @@ describe('command:dx-init', () => {
         expect(project).to.be.shallowDeepEqual({
           name: 'my-project-with-path',
           stackReference: {
-            name: 'hello-world',
-            origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+            name: testStack.name,
+            origin: testStack.location,
           },
           features: [],
         });
@@ -281,14 +287,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: 'hello-world',
+              name: testStack.name,
               predefined: true,
-              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
-              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              origin: testStack.location,
+              locationPath: testStack.location,
             },
             template: {
               name: 'init',
-              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
+              path: path.resolve(testStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -319,7 +325,7 @@ describe('command:dx-init', () => {
         await fs.promises.writeFile(path.resolve(projectFolder, 'package.json'), '{"the": "existing file"}');
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', 'hello-world', projectName, '--override'], { cwd: tempDir, input });
+        commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '--override'], { cwd: tempDir, input });
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -347,14 +353,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: 'hello-world',
+              name: testStack.name,
               predefined: true,
-              origin: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
-              locationPath: new URL('../../stacks/predefined/hello-world', import.meta.url).pathname,
+              origin: testStack.location,
+              locationPath: testStack.location,
             },
             template: {
               name: 'init',
-              path: new URL('../../stacks/predefined/hello-world/init', import.meta.url).pathname,
+              path: path.resolve(testStack.location, 'init'),
             },
             userOptions: {
               override: true
