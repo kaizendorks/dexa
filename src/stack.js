@@ -9,6 +9,7 @@ const defaultValues = () => ({
   predefined: false,
   origin: '',
   locationPath: '',
+  private: false,
   // version: '',
 });
 
@@ -36,6 +37,7 @@ class Stack {
       predefined: this.predefined,
       origin: this.origin,
       locationPath: this.locationPath,
+      private: this.private,
       // version: this.version,
     };
   }
@@ -169,6 +171,7 @@ Stack.newFromGit = async (name, gitRepoUrl, isPrivate = false) => {
     name,
     origin: gitRepoUrl,
     locationPath,
+    private: isPrivate,
     // version:
   });
 };

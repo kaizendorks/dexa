@@ -122,6 +122,7 @@ describe('command:dx-init', () => {
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
+            private: false,
           },
           features: [],
         });
@@ -195,6 +196,7 @@ describe('command:dx-init', () => {
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
+            private: false,
           },
           features: [],
         });
@@ -218,6 +220,7 @@ describe('command:dx-init', () => {
               predefined: true,
               origin: testStack.location,
               locationPath: testStack.location,
+              private: false,
             },
             template: {
               name: 'init',
@@ -268,6 +271,7 @@ describe('command:dx-init', () => {
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
+            private: false,
           },
           features: [],
         });
@@ -291,6 +295,7 @@ describe('command:dx-init', () => {
               predefined: true,
               origin: testStack.location,
               locationPath: testStack.location,
+              private: false,
             },
             template: {
               name: 'init',
@@ -357,6 +362,7 @@ describe('command:dx-init', () => {
               predefined: true,
               origin: testStack.location,
               locationPath: testStack.location,
+              private: false,
             },
             template: {
               name: 'init',

@@ -124,10 +124,13 @@ Init:
 ### 0.3.0 - IN PROGRESS
 DONE Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
 
+Stack:
+- allow adding stacks from local folders (not just git repos). Helps testing stacks themselves and also testing new features like prompt to install stack when execuring dx add commands.
+
 Add:
 - DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
 - DONE The command has to be run in a project folder previously initialized with `dx init`. Specific error is returned if not
-- automatically download stack if not currently installed
+- automatically prompt user to install stack used in project if not currently installed locally. In order to add a test, adding stacks from local folders should be implemented.
 
 Generate:
 - allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
@@ -149,7 +152,8 @@ Generate:
 ### 0.5.0
 
 Init:
-- add custom helpers for the templates
+- add custom helpers for the templates via a property in the `dexa.js` file of the stack
+- add new predefined helpers like camelCase, kebapCase, and relative path between files
 
 Add:
 - allow users to optionally include available "add" commands when initializing a project (with a prompt showing them so users can select them)
@@ -161,7 +165,7 @@ Generate:
 ### 0.6.0
 
 Stack:
-- manage versions of stacks (update stack, keep track of version used with project). Stack version taken from the hash parameter of the source (as in `#v1.0.3`). Update command can be invoked as `dx stack update foo` so downloads and overrides the default version, or `dx stack update foo branch-or-tag` so it downloads version `#branch-or-tag`
+- manage versions of stacks (new command to update stack, keep track of version used with project). Stack version taken from the hash parameter of the source (as in `#v1.0.3`). Update command can be invoked as `dx stack update foo` so downloads and overrides the default version, or `dx stack update foo branch-or-tag` so it downloads version `#branch-or-tag`
 
 Add:
 - commands are version aware. If project was created with a specific stack version and that version isnt installed locally, it will download before executing the command
@@ -182,7 +186,6 @@ Init:
 - once we have a repo with example stacks, repoint tests so we dont depend on 3rd party repos/templates that might change
 
 Stack:
-- allow adding stacks from local folders (not just git repos) to help testing stacks themselves
 - predefined "init" only stack to create your own stack
 
 Sample stacks:
@@ -198,7 +201,7 @@ Docs:
 - Usage - how to create stacks, folder structure, static and handlebar files
 - Usage - how to create stacks, optional dexa.js metadata
 - Usage - how to create stacks, use predefined `dx init dexa-stack` stack
-- Usage - managing stacks
+- Usage - managing stacks. (Add from either git or local folder, list and delete stacks)
 - Usage - using stacks, how to create a project with a stack
 - Usage - using stacks, how to invoke add/generate commands with a stack
 - API - cli commands

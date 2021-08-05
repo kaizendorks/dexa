@@ -16,6 +16,8 @@ const addStackFromGit = async (name, gitRepoUrl, isPrivate = false) => {
   stacks.push(stack);
 
   await Stack.saveAll(stacks);
+
+  return stack;
 };
 
 const deleteStackByName = async (name) => {

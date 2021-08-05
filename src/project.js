@@ -62,6 +62,7 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
     stackReference: {
       name: stack.name,
       origin: stack.origin,
+      private: stack.private,
       // version: stack.version,
     },
     features: []

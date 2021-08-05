@@ -131,6 +131,7 @@ describe('command:dx-add', () => {
               predefined: true,
               origin: testStack.location,
               locationPath: testStack.location,
+              private: false,
             },
             template: {
               name: 'unit-test',
@@ -184,6 +185,7 @@ describe('command:dx-add', () => {
               predefined: true,
               origin: testStack.location,
               locationPath: testStack.location,
+              private: false,
             },
             template: {
               name: 'unit-test',

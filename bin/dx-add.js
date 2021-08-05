@@ -4,6 +4,8 @@ import program from 'commander';
 import chalk from 'chalk';
 import Project from '../src/project.js';
 import { getStackByname } from '../src/stack-manager.js';
+import { confirm } from '../src/user-prompts.js';
+import { addStackFromGit } from '../src/stack-manager.js';
 import { errorHandler } from '../src/errors.js';
 
 async function main(){
@@ -12,12 +14,18 @@ async function main(){
   const project = Project.load(currentFolder);
 
   // Load the stack
-  // TODO: if the stack or its version isnt downloaded locally, we will need to download it before proceeding
-  //       this means we might have to do these initialization steps in an async function called from the entrypoint of this file
-  const stack = getStackByname(project.stackReference.name);
+  // It is possible that the stack does not exist locally (if the project was created by someone else or if the stack has been deleted)
+  let stack = getStackByname(project.stackReference.name);
+  if (!stack){
+    const shouldDownloadStack = await confirm(`The stack ${project.stackReference.name} is not installed locally. Do you want to add it?`);
+    if (!shouldDownloadStack) return;
+
+    stack = await addStackFromGit(project.stackReference.name, project.stackReference.origin, project.stackReference.private);
+  }
 
   // Configure one command for each of the "add" templates
-  stack.getAddTemplates().forEach(template => {
+  const addTemplates = stack.getAddTemplates();
+  addTemplates.forEach(template => {
 
     program
       .command(template.name)
@@ -55,9 +63,12 @@ async function main(){
   });
 
   // Start processing
-  return program
-    .showHelpAfterError(chalk.grey('(run "dx add --help" for a list of the available templates and additional usage information)'))
-    .parseAsync(process.argv);
+  program.showHelpAfterError(chalk.grey('(run "dx add --help" for a list of the available templates and additional usage information)'));
+  await program.parseAsync(process.argv);
+
+  if (!addTemplates.length){
+    console.log(chalk.yellow(`The stack ${stack.name} does not define any add template!`));
+  }
 }
 
 
