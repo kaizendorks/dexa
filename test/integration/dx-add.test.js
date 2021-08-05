@@ -34,7 +34,7 @@ describe('command:dx-add', () => {
       const commandResult = await execa('node', [cli, 'add'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
-      expect(commandResult.stderr.replace(/\n/g, '')).to.match(/The directory .* does not contain a dexa project file/s);
+      expect(commandResult.stderr.replace(/\n/g, '')).to.match(/The folder ".*" does not contain a dexa project or its "\.dexarc" file cannot be found/s);
     });
 
     it('returns the help when the template name is missing', async () => {

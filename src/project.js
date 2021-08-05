@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const config = require('../config/dexa.config');
 const chalk = require('chalk');
+const { CurrentFolderIsNotADexaProjectError } = require('./errors');
 
 const defaultValues = () => ({
   name: '',
@@ -49,7 +50,7 @@ Project.load = (locationPath) => {
   // TODO: should we navigate up the folder structure until we find a dexarc file? This way can invoke dx add/generate commands from subfolders of the project
   const projectRcFile = path.resolve(locationPath, config.project.rcfile);
   const locationHasProjectFile = fs.existsSync(projectRcFile);
-  if (!locationHasProjectFile) throw new Error(`The directory ${locationPath} does not contain a dexa project file`);
+  if (!locationHasProjectFile) throw new CurrentFolderIsNotADexaProjectError(locationPath);
 
   const projectData = JSON.parse(fs.readFileSync(projectRcFile, 'utf8'));
   return new Project(projectData);

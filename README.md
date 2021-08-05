@@ -126,7 +126,7 @@ Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and
 
 Add:
 - DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
-- The command has to be run in a project folder previously initialized with `dx init`. Specific error is returned if not
+- DONE The command has to be run in a project folder previously initialized with `dx init`. Specific error is returned if not
 - automatically download stack if not currently installed
 
 Generate:
@@ -151,11 +151,11 @@ Init:
 - add custom helpers for the templates
 
 Add:
-- allow users to optionally include available "add" commands when initializing a project
+- allow users to optionally include available "add" commands when initializing a project (with a prompt showing them so users can select them)
 - allow command to depend on other add commands (fail if not added before or prompt user to add?)
 
 Generate:
-- allow command to depend on other add commands (fail if not added before or prompt user to add?)
+- allow command to depend on some add command(s) (fail if not added before or prompt user to add?)
 
 ### 0.6.0
 
