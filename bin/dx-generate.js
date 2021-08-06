@@ -16,33 +16,28 @@ async function main(){
   if (!stack) return;
 
   // Configure one command for each of the "add" templates
-  const addTemplates = stack.getAddTemplates();
-  addTemplates.forEach(template => {
+  const generateTemplates = stack.getGenerateTemplates();
+  console.log(generateTemplates);
+  generateTemplates.forEach(template => {
 
     program
       .command(template.name)
       // Command arguments/options
+      .argument('<name>', 'name of the new element being generated <required>')
       .option('-o, --override', 'allow dexa to override any existing files')
 
       // Help
-      .showHelpAfterError(chalk.grey(`(run "dx add ${template.name} --help" for additional usage information)`))
+      .showHelpAfterError(chalk.grey(`(run "dx generate ${template.name} --help" for additional usage information)`))
 
       // Action implementation
-      .action(async (userOptions/*, command*/) => {
-        const destinationPath = currentFolder;
-
-        // TODO: should we add a method to the project class like "addFeature(template, destinationPath, userOptions)" ?
+      .action(async (name, userOptions/*, command*/) => {
         await template.render({
-          destinationPath,
+          destinationPath: currentFolder,
           project,
-          userOptions,
+          userOptions: {name, ...userOptions},
         });
 
-        project.features.push(template.name);
-        project.features = [...new Set(project.features)];
-        await project.save(destinationPath);
-
-        console.log(chalk.green(`🚀 Done adding the feature "${template.name}"!`));
+        console.log(chalk.green(`🚀 Done generating the new "${template.name}"!`));
       });
 
       // TODO: allow templates to define an optional method "defineCommand({program, currentFolder, project, stack, template})"
@@ -55,10 +50,10 @@ async function main(){
   });
 
   // Start processing
-  program.showHelpAfterError(chalk.grey('(run "dx add --help" for a list of the available templates and additional usage information)'));
+  program.showHelpAfterError(chalk.grey('(run "dx generate --help" for a list of the available templates and additional usage information)'));
   await program.parseAsync(process.argv);
 
-  if (!addTemplates.length){
+  if (!generateTemplates.length){
     console.log(chalk.yellow(`The stack ${stack.name} does not define any add template!`));
   }
 }

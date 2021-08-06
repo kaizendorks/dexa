@@ -35,6 +35,7 @@ describe('command:dx', () => {
 
     const expectedSubcommands = [
       'add',
+      'generate',
       'init',
       'stack',
     ];

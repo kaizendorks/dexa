@@ -47,6 +47,8 @@ async function main(){
         if (!proceed) return;
       }
 
+      console.log(`Creating new project in "${fullDestinationPath}" using stack "${stackName}"`);
+
       await Project.init({
         name: projectName,
         stack: getStackByname(stackName),

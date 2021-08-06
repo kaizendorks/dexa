@@ -12,6 +12,7 @@ program
   // .hook('preAction', (thisCommand, actionCommand) => console.log())
   // .hook('postAction', (thisCommand, actionCommand) => console.log())
   .command('add', 'adds stack features to a project')
+  .command('generate', 'generates code for common stack elements and adds it to a project')
   .command('init', 'creates a new project using the specified stack')
   .command('stack', 'manages the different stacks. Each stack is made by a project template and its code generators')
   .parse(process.argv);
@@ -19,6 +20,7 @@ program
 // Catch all validation in case user mistypes the command
 const validCommands = [
   'add',
+  'generate',
   'init',
   'stack',
 ];

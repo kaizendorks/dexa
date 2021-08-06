@@ -43,7 +43,10 @@ describe('the project class', () => {
 
       let loadedProject = await Project.load(locationPath);
 
-      expect(loadedProject).to.be.eql(mockProjectData);
+      expect(loadedProject).to.be.eql({
+        locationPath,
+        ...mockProjectData
+      });
     });
 
     it('throws an error if the given location does not contain a dexarc file', () => {

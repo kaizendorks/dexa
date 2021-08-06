@@ -5,6 +5,7 @@ import { CurrentFolderIsNotADexaProjectError } from './errors.js';
 
 const defaultValues = () => ({
   name: '',
+  locationPath: '',
   stackReference: {},
   features: [] // these are added to a project with the "dx add" commands
 });
@@ -26,16 +27,6 @@ class Project {
     // });
   }
 
-  async save(locationPath){
-    const projectRcFile = path.resolve(locationPath, config.project.rcfile);
-    // save project data to the dexarc file
-    await fs.writeJSON(projectRcFile, this, {
-      spaces: 2,
-      encoding: 'utf8',
-      flag: 'w' // see https://nodejs.org/api/fs.html#fs_file_system_flags
-    });
-  }
-
   toJSON(){
     return {
       name: this.name,
@@ -43,21 +34,48 @@ class Project {
       features: this.features,
     };
   }
+
+  async save(){
+    // save project data to the dexarc file
+    const projectRcFile = path.resolve(this.locationPath, config.project.rcfile);
+    await fs.writeJSON(projectRcFile, this, {
+      spaces: 2,
+      encoding: 'utf8',
+      flag: 'w' // see https://nodejs.org/api/fs.html#fs_file_system_flags
+    });
+  }
+
+  async addFeature(template, userOptions){
+    await template.render({
+      destinationPath: this.locationPath,
+      project: this,
+      userOptions,
+    });
+
+    this.features.push(template.name);
+    this.features = [...new Set(this.features)];
+    await this.save();
+  }
 }
 
 Project.load = (locationPath) => {
   // Load project from the dexarc file
-  // TODO: should we navigate up the folder structure until we find a dexarc file? This way can invoke dx add/generate commands from subfolders of the project
+  // TODO: should we navigate up the folder structure until we find a dexarc file?
+  //       This way can invoke dx add/generate commands from subfolders of the project
   const projectRcFile = path.resolve(locationPath, config.project.rcfile);
   const locationHasProjectFile = fs.existsSync(projectRcFile);
   if (!locationHasProjectFile) throw new CurrentFolderIsNotADexaProjectError(locationPath);
 
   const projectData = fs.readJSONSync(projectRcFile, {encoding: 'utf8' });
-  return new Project(projectData);
+  return new Project({
+    locationPath,
+    ...projectData
+  });
 };
 
 Project.init = async ({name, stack, destinationPath, userOptions}) => {
   const project= new Project({
+    locationPath: destinationPath,
     name,
     stackReference: {
       name: stack.name,
@@ -67,7 +85,6 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
     },
     features: []
   });
-  console.log(`Creating new project in "${destinationPath}" using stack "${stack.name}" from ${stack.locationPath}`);
 
   // render init template
   await stack.renderInitTemplate({
@@ -76,7 +93,7 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
     userOptions
   });
   // generate dexarc file at project root
-  await project.save(destinationPath);
+  await project.save();
 
   return project;
 };

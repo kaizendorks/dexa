@@ -75,8 +75,6 @@ class Stack {
         name: path.basename(f), // use folder name as the template name
         path: f,
         stack: this,
-        preAction: null,
-        postAction: null,
       }));
 
     // TODO: combine with settings in optional dexa.js file at the root of the stack folder
@@ -97,11 +95,9 @@ class Stack {
       .map(f => path.resolve(this.locationPath, './generate', f))
       .filter(f => fs.statSync(f).isDirectory())
       .map(f => new Template({
-        name: path.parse(f).dir, // use folder name as the template name
+        name: path.basename(f), // use folder name as the template name
         path: f,
         stack: this,
-        preAction: null,
-        postAction: null,
       }));
 
     // TODO: combine with settings in optional dexa.js file at the root of the stack folder

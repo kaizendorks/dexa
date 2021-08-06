@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Stack from './stack.js';
+import { confirm } from './user-prompts.js';
 import { StackAlreadyExistsError, StackDoesNotExistsError } from './errors.js';
 
 let stacks = Stack.loadAll();
@@ -38,10 +39,25 @@ const deleteStackByName = async (name) => {
   await Stack.saveAll(stacks);
 };
 
+const ensureStackFromProject = async (project) => {
+  // Load the stack
+  // It is possible that the stack does not exist locally (if the project was created by someone else or if the stack has been deleted)
+  let stack = getStackByname(project.stackReference.name);
+  if (stack) return stack;
+
+  // If the stack isnt installed locally, ask the user to confirm and install it
+  const shouldDownloadStack = await confirm(`The stack ${project.stackReference.name} is not installed locally. Do you want to add it?`);
+  if (!shouldDownloadStack) return;
+
+  stack = await addNewStack(project.stackReference.name, project.stackReference.origin, project.stackReference.private);
+  return stack;
+};
+
 export {
   getStacks,
   getStackNames,
   getStackByname,
   addNewStack,
   deleteStackByName,
+  ensureStackFromProject,
 };

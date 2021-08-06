@@ -7,6 +7,7 @@
   "bin": {
     "dx": "bin/dx.js",
     "dx-add": "bin/dx-add.js",
+    "dx-generate": "bin/dx-generate.js",
     "dx-init": "bin/dx-init.js",
     "dx-stack": "bin/dx-stack.js",
     "dx-stack-add": "bin/dx-stack-add.js",

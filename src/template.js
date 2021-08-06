@@ -53,7 +53,7 @@ class Template {
   }
 
   async _renderSingleFile(templateFilePath, { destinationPath, project, userOptions }){
-    const destinationFilePath = getFileDestinationPath(this.path, templateFilePath, destinationPath);
+    const destinationFilePath = getFileDestinationPath(this.path, templateFilePath, destinationPath, userOptions);
 
     // Ensure the destination directory where the file will be rendered exists
     await ensureDir(destinationFilePath);

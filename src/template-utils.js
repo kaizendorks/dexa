@@ -3,12 +3,23 @@ import fs from 'fs';
 import chalk from 'chalk';
 import Handlebars from 'handlebars';
 
-const getFileDestinationPath = (templatePath, templateFilePath, destinationPath) => {
+const getFileDestinationPath = (templatePath, templateFilePath, destinationPath, userOptions) => {
   // given a file like "/my/template/some/file.js"
   // we can generate its final destination path as in "/my/final/destination/some/file.js"
   // Note we remove the ".hbs" extension that marks it as a handlebars template
   const fileRelativePathInsideTemplate = path.relative(templatePath, templateFilePath);
-  return path.resolve(destinationPath, fileRelativePathInsideTemplate).replace('.hbs', '');
+  let fileDestinationPath = path.resolve(destinationPath, fileRelativePathInsideTemplate).replace('.hbs', '');
+
+  // templates can reference userOptions (like the name argument of "dx generate" commands) in their folder structure or file name
+  // so the generated folder/file names can be determined by user provided options
+  // Any string __optionName__ in a template's folder/file name, will be replaced with the option value
+  for (const optionName in userOptions) {
+    fileDestinationPath = fileDestinationPath.replace(
+      new RegExp(`__${optionName}__`,'g'),
+      userOptions[optionName]);
+  }
+
+  return fileDestinationPath;
 };
 
 const ensureDir = async (destinationFilePath) => {

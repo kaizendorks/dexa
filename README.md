@@ -121,7 +121,7 @@ Init:
 - DONE - introduce project/stack classes
 - DONE - create a dexarc file after generating the project
 
-### 0.3.0 - IN PROGRESS
+### 0.3.0 - DONE
 DONE Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
 
 Stack:
@@ -133,9 +133,13 @@ Add:
 - DONE automatically prompt user to install stack used in project if not currently installed locally. In order to add a test, adding stacks from local folders should be implemented.
 
 Generate:
-- allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
+- DONE allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
 
 ### 0.4.0
+
+Template:
+- rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`
+- add `makeVariant` method to manually handle scenarios where a template like `generate/api-crud` has subfolders like `/common`, `/mongo` or `/postgre` with some logic based on the project features and/or user provided options to determine which ones to render. This way in the overriding template's action method, the received template object can be used to `const commonTemplate = makeVariant('./common')` and later call `commonTemplate.render(...)` (and similar for the other variants) based on arbitrary logic as implemented by the stack.
 
 Init:
 - optionally create new git repo and first commit

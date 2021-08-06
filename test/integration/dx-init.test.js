@@ -119,6 +119,7 @@ describe('command:dx-init', () => {
 
         expect(project).to.be.shallowDeepEqual({
           name: projectName,
+          locationPath: projectFolder,
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
@@ -193,6 +194,7 @@ describe('command:dx-init', () => {
 
         expect(project).to.be.shallowDeepEqual({
           name: 'my-project',
+          locationPath: projectFolder,
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
@@ -268,6 +270,7 @@ describe('command:dx-init', () => {
 
         expect(project).to.be.shallowDeepEqual({
           name: 'my-project-with-path',
+          locationPath: projectFolder,
           stackReference: {
             name: testStack.name,
             origin: testStack.location,
