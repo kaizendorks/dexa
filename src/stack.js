@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 import degit from 'degit';
 import config from '../config/dexa.config.js';
 import Template from './template.js';
@@ -140,11 +140,9 @@ const predefinedStacks = [
 
 Stack.loadAll = () => {
   // load user-defined stacks from the file DB
-  let userDefinedStacks = [];
-  const dbFileExists = fs.existsSync(config.stacks.databaseJSONFile);
-  if(dbFileExists){
-    userDefinedStacks = JSON.parse(fs.readFileSync(config.stacks.databaseJSONFile));
-  }
+  let userDefinedStacks = fs.existsSync(config.stacks.databaseJSONFile) ?
+    fs.readJSONSync(config.stacks.databaseJSONFile, { encoding: 'utf8' }) :
+    [];
 
   // Convert them to stack objects and merge them with the predefined stacks
   return predefinedStacks.concat(
@@ -155,7 +153,8 @@ Stack.saveAll = async (stackModels) => {
   // get user-defined stacks (no need to write the predefined ones)
   const userDefinedStacks = stackModels.filter(s => !s.predefined);
   // save them to the file DB
-  await fs.promises.writeFile(config.stacks.databaseJSONFile, JSON.stringify(userDefinedStacks, null, 2), {
+  await fs.writeJSON(config.stacks.databaseJSONFile, userDefinedStacks, {
+    spaces: 2,
     encoding: 'utf8',
     flag: 'w' // see https://nodejs.org/api/fs.html#fs_file_system_flags
   });

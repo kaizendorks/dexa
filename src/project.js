@@ -1,6 +1,5 @@
 import path from 'path';
-import fs from 'fs';
-import chalk from 'chalk';
+import fs from 'fs-extra';
 import config from '../config/dexa.config.js';
 import { CurrentFolderIsNotADexaProjectError } from './errors.js';
 
@@ -30,7 +29,8 @@ class Project {
   async save(locationPath){
     const projectRcFile = path.resolve(locationPath, config.project.rcfile);
     // save project data to the dexarc file
-    await fs.promises.writeFile(projectRcFile, JSON.stringify(this, null, 2), {
+    await fs.writeJSON(projectRcFile, this, {
+      spaces: 2,
       encoding: 'utf8',
       flag: 'w' // see https://nodejs.org/api/fs.html#fs_file_system_flags
     });
@@ -52,7 +52,7 @@ Project.load = (locationPath) => {
   const locationHasProjectFile = fs.existsSync(projectRcFile);
   if (!locationHasProjectFile) throw new CurrentFolderIsNotADexaProjectError(locationPath);
 
-  const projectData = JSON.parse(fs.readFileSync(projectRcFile, 'utf8'));
+  const projectData = fs.readJSONSync(projectRcFile, {encoding: 'utf8' });
   return new Project(projectData);
 };
 
@@ -67,7 +67,7 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
     },
     features: []
   });
-  console.log(chalk.grey(`Creating new project in "${destinationPath}" using stack "${stack.name}" from ${stack.locationPath}`));
+  console.log(`Creating new project in "${destinationPath}" using stack "${stack.name}" from ${stack.locationPath}`);
 
   // render init template
   await stack.renderInitTemplate({
