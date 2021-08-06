@@ -50,6 +50,8 @@ async function main(){
         project.features.push(template.name);
         project.features = [...new Set(project.features)];
         await project.save(destinationPath);
+
+        console.log(chalk.green(`🚀 Done adding the feature "${template.name}"!`));
       });
 
       // TODO: allow templates to define an optional method "defineCommand({program, currentFolder, project, stack, template})"

@@ -53,6 +53,8 @@ async function main(){
         destinationPath: fullDestinationPath,
         userOptions: { override }
       });
+
+      console.log(chalk.green(`🎊 Done generating new project "${projectName}" in "${fullDestinationPath}"!`));
     });
 
   // Start processing

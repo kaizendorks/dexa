@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 import os from 'os';
 import execa from 'execa';
 import { promisify } from 'util';
@@ -194,6 +194,83 @@ describe('command:dx-add', () => {
             userOptions: {
               override: true
             }
+          });
+        });
+
+        it('have the expected contents so we have a working node project', async () => {
+          const generatedTestsResult = await execa('node', ['./test/greeter.test.js'], { cwd: projectFolder });
+          expect(generatedTestsResult.exitCode).to.equal(0);
+        });
+      });
+    });
+
+  });
+
+  describe('when using a stack not installed locally', () => {
+    let alternativeStack = {
+      name: 'hello-world-alt',
+      location: ''
+    };
+    let projectName = 'test-missing-stack';
+    let projectFolder;
+    let commandResult;
+
+    before(async () => {
+      // create a copy of the existing "hello-world" predefined stack
+      alternativeStack.location = path.resolve(tempDir, alternativeStack.name);
+      await fs.copy(testStack.location, alternativeStack.location, { recursive: true });
+
+      // register it as a new stack
+      await execa('node', [cli, 'stack', 'add', alternativeStack.name, alternativeStack.location]);
+
+      // create a new project using the added stack
+      await execa('node', [cli, 'init', alternativeStack.name, projectName], { cwd: tempDir });
+      projectFolder = path.resolve(tempDir, projectName);
+
+      // now remove the stack
+      await execa('node', [cli, 'stack', 'delete', alternativeStack.name], { input: 'Y\n' });
+    });
+
+    it('prompts the user to install the stack before proceeding', async () => {
+      const input = "n\n"; // simulate typing no when prompted
+      commandResult = await execa('node', [cli, 'add', 'unit-test'], { cwd: projectFolder, input });
+
+      expect(commandResult.exitCode).to.equal(0);
+      expect(commandResult.stdout).to.include(`The stack ${alternativeStack.name} is not installed locally. Do you want to add it?`);
+    });
+
+    describe('can install the stack while executing the add command', () => {
+      before(async () => {
+        // run the add command, confirming that we want to install the missing stack
+        const input = 'Y\n';
+        commandResult = await execa('node', [cli, 'add', 'unit-test'], { cwd: projectFolder, input });
+      });
+
+      it('succeeds', () => {
+        expect(commandResult.exitCode).to.equal(0);
+      });
+
+      describe('the generated template files', () => {
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, '.dx-add-args-trap.js'));
+          expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: alternativeStack.name,
+              predefined: false,
+              origin: alternativeStack.location,
+              locationPath: alternativeStack.location,
+              private: false,
+            },
+            template: {
+              name: 'unit-test',
+              path: path.resolve(alternativeStack.location, 'add/unit-test'),
+            },
+            userOptions: {}
           });
         });
 

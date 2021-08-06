@@ -130,7 +130,7 @@ Stack:
 Add:
 - DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
 - DONE The command has to be run in a project folder previously initialized with `dx init`. Specific error is returned if not
-- automatically prompt user to install stack used in project if not currently installed locally. In order to add a test, adding stacks from local folders should be implemented.
+- DONE automatically prompt user to install stack used in project if not currently installed locally. In order to add a test, adding stacks from local folders should be implemented.
 
 Generate:
 - allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
@@ -153,7 +153,7 @@ Generate:
 
 Init:
 - add custom helpers for the templates via a property in the `dexa.js` file of the stack
-- add new predefined helpers like camelCase, kebapCase, and relative path between files
+- add predefined helpers like camelCase, kebapCase, and relative path between files
 
 Add:
 - allow users to optionally include available "add" commands when initializing a project (with a prompt showing them so users can select them)
