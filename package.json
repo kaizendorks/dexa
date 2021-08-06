@@ -1,6 +1,6 @@
 {
   "name": "dexa",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "dexa is a CLI tool that allows you to capture your preferred tech stack as a project template with generators",
   "main": "index.js",
   "type": "module",
