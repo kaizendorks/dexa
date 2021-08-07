@@ -135,7 +135,10 @@ Add:
 Generate:
 - DONE allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
 
-### 0.4.0
+### 0.4.0 - IN PROGRESS
+
+General:
+- DONE added npmignore to exclude files from published package
 
 Template:
 - rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`

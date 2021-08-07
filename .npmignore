@@ -1,0 +1,7 @@
+.github/
+.husky/
+test/
+
+.eslintrc.cjs
+.eslintignore
+release.sh
