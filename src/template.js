@@ -73,9 +73,7 @@ class Template {
     return destinationFilePath;
   }
 
-  async render({ destinationPath, project, userOptions }){
-    await this._runPreAction({project, userOptions});
-
+  async _render({ destinationPath, project, userOptions }){
     const templateFiles = await this._getTemplateFiles();
 
     const renderedFiles = await Promise.all(templateFiles.map(templateFilePath =>
@@ -85,6 +83,14 @@ class Template {
         userOptions,
       })
     ));
+
+    return renderedFiles;
+  }
+
+  async apply({ destinationPath, project, userOptions }){
+    await this._runPreAction({project, userOptions});
+
+    const renderedFiles = await this._render({ destinationPath, project, userOptions });
 
     await this._runPostAction({project, userOptions, renderedFiles});
 

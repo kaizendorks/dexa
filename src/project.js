@@ -46,7 +46,7 @@ class Project {
   }
 
   async addFeature(template, userOptions){
-    await template.render({
+    await template.apply({
       destinationPath: this.locationPath,
       project: this,
       userOptions,
@@ -87,7 +87,7 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
   });
 
   // render init template
-  await stack.renderInitTemplate({
+  await stack.applyInitTemplate({
     destinationPath,
     project,
     userOptions

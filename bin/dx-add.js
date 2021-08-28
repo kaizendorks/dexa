@@ -29,19 +29,7 @@ async function main(){
 
       // Action implementation
       .action(async (userOptions/*, command*/) => {
-        const destinationPath = currentFolder;
-
-        // TODO: should we add a method to the project class like "addFeature(template, destinationPath, userOptions)" ?
-        await template.render({
-          destinationPath,
-          project,
-          userOptions,
-        });
-
-        project.features.push(template.name);
-        project.features = [...new Set(project.features)];
-        await project.save(destinationPath);
-
+        await project.addFeature(template, userOptions);
         console.log(chalk.green(`🚀 Done adding the feature "${template.name}"!`));
       });
 

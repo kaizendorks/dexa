@@ -106,9 +106,9 @@ class Stack {
     return templates;
   }
 
-  async renderInitTemplate({ destinationPath, project, userOptions }){
+  async applyInitTemplate({ destinationPath, project, userOptions }){
     const template = this.getInitTemplate();
-    return await template.render({
+    return await template.apply({
       destinationPath,
       project,
       userOptions

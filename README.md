@@ -141,8 +141,9 @@ General:
 - DONE added npmignore to exclude files from published package
 
 Template:
-- rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`
+- DONE rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`
 - add `makeVariant` method to manually handle scenarios where a template like `generate/api-crud` has subfolders like `/common`, `/mongo` or `/postgre` with some logic based on the project features and/or user provided options to determine which ones to render. This way in the overriding template's action method, the received template object can be used to `const commonTemplate = makeVariant('./common')` and later call `commonTemplate.render(...)` (and similar for the other variants) based on arbitrary logic as implemented by the stack.
+- allow conditional rendering of template files based on the user options. This could be done either through the file name with a convention like `myfile.hbs$$unitTests=true` meaning this file is only rendered when the user option `unitTests == true`. Alternatively, the extended options in `dexa.js` for a given template could contain an optional function to filter files based on user options (could receive an array of file paths and return a filtered array, or just return an array of regex/globs that template class will use to filter those files which match any regex/glob)
 
 Init:
 - optionally create new git repo and first commit
