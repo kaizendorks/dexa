@@ -39,14 +39,14 @@ describe('command:dx-init', () => {
       const commandResult = await execa('node', [cli, 'init'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
-      expect(commandResult.stderr).to.contain("error: missing required argument 'stackName'");
+      expect(commandResult.stderr).to.contain("Usage: dx-init [options] [command]");
     });
 
     it('returns an error when the stack doesnt exist', async () => {
       const commandResult = await execa('node', [cli, 'init', 'non-existing-stack'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
-      expect(commandResult.stderr).to.contain("command-argument value 'non-existing-stack' is invalid for argument 'stackName'");
+      expect(commandResult.stderr).to.contain("error: unknown command 'non-existing-stack'");
     });
   });
 

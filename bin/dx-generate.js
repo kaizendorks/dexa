@@ -15,13 +15,13 @@ async function main(){
   const stack = await ensureStackFromProject(project);
   if (!stack) return;
 
-  // Configure one command for each of the "add" templates
-  const generateTemplates = stack.getGenerateTemplates();
-  console.log(generateTemplates);
-  generateTemplates.forEach(template => {
+  // Configure one command for each of the "generate" templates
+  stack.generate.forEach(template => {
 
     program
       .command(template.name)
+      .description(template.description)
+
       // Command arguments/options
       .argument('<name>', 'name of the new element being generated <required>')
       .option('-o, --override', 'allow dexa to override any existing files')
@@ -53,8 +53,8 @@ async function main(){
   program.showHelpAfterError(chalk.grey('(run "dx generate --help" for a list of the available templates and additional usage information)'));
   await program.parseAsync(process.argv);
 
-  if (!generateTemplates.length){
-    console.log(chalk.yellow(`The stack ${stack.name} does not define any add template!`));
+  if (!stack.generate.length){
+    console.log(chalk.yellow(`The stack ${stack.name} does not define any generate template!`));
   }
 }
 

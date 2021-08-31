@@ -1,0 +1,7 @@
+{
+  "name": "hello-world-stack",
+  "version": "0.0.1",
+  "description": "A simple test stack for dexa",
+  "main": "dexa.js",
+  "type": "module"
+}

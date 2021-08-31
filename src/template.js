@@ -11,6 +11,7 @@ import {
 
 const defaultValues = () => ({
   name: 'init',
+  description: '',
   path: '',
   stack: {},
   postAction: null,

@@ -4,11 +4,9 @@ import Stack from './stack.js';
 import { confirm } from './user-prompts.js';
 import { StackAlreadyExistsError, StackDoesNotExistsError } from './errors.js';
 
-let stacks = Stack.loadAll();
+let stacks = await Stack.loadAll();
 
 const getStacks = () => stacks;
-
-const getStackNames = () => stacks.map(s => s.name);
 
 const getStackByname = (name) => stacks.find(s => s.name === name);
 
@@ -55,7 +53,6 @@ const ensureStackFromProject = async (project) => {
 
 export {
   getStacks,
-  getStackNames,
   getStackByname,
   addNewStack,
   deleteStackByName,

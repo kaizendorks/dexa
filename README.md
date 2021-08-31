@@ -139,6 +139,7 @@ Generate:
 
 General:
 - DONE added npmignore to exclude files from published package
+- DONE Refactor stack-manager to use top-level await when loading all the stacks. Every time a stack is loaded/created, its init/add/generate templates are loaded with an async method `loadTemplates` that combines default information with any custom properties defined in the optional `dexa.js` file of the stack.
 
 Template:
 - DONE rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`
@@ -147,17 +148,24 @@ Template:
 
 Init:
 - optionally create new git repo and first commit
-- ad optional description for stack in dexa.js, use it as `program.description` when wiring all the `dx init` commands. (would need to refactor current dx-add.js to create a command per stack)
-- add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
+- DONE add optional description for stack in dexa.js, use it as `program.description` when wiring all the `dx init` commands. (would need to refactor current dx-add.js to create a command per stack)
+- DONE add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
 - override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
 
 Add:
-- allow extra config/metadata to be defined in dexa.js. A `defineCLICommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
+- allow extra config/metadata to be defined in dexa.js.
+    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
+    - The same description/pre/post/action than in init are available
 
 Generate:
-- allow extra config/metadata to be defined in dexa.js. A `defineCommand` method receives the commander program so users can add additional parameters/options. The same pre/post/action than in init are available
+- allow extra config/metadata to be defined in dexa.js.
+    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
+    - The same description/pre/post/action than in init are available
 
 ### 0.5.0
+
+General:
+- Should the template class be renamed as `command`? As ways for users to add pre/post action and override the default action of rendering files, it might make more sense. Perhaps the template class should remain as the general way of rendering files.
 
 Init:
 - add custom helpers for the templates via a property in the `dexa.js` file of the stack

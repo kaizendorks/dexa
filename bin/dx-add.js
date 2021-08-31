@@ -16,11 +16,12 @@ async function main(){
   if (!stack) return;
 
   // Configure one command for each of the "add" templates
-  const addTemplates = stack.getAddTemplates();
-  addTemplates.forEach(template => {
+  stack.add.forEach(template => {
 
     program
       .command(template.name)
+      .description(template.description)
+
       // Command arguments/options
       .option('-o, --override', 'allow dexa to override any existing files')
 
@@ -46,7 +47,7 @@ async function main(){
   program.showHelpAfterError(chalk.grey('(run "dx add --help" for a list of the available templates and additional usage information)'));
   await program.parseAsync(process.argv);
 
-  if (!addTemplates.length){
+  if (!stack.add.length){
     console.log(chalk.yellow(`The stack ${stack.name} does not define any add template!`));
   }
 }

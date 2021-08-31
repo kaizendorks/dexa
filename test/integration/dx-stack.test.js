@@ -35,8 +35,9 @@ describe('command:dx-stack', () => {
     if (fs.existsSync(config.stacks.databaseJSONFile)){
       await fs.promises.rm(config.stacks.databaseJSONFile);
     }
+    const stacks = await Stack.loadAll();
     await Promise.all(
-      Stack.loadAll().filter(s => !s.predefined).map(s => s.cleanup()));
+      stacks.filter(s => !s.predefined).map(s => s.cleanup()));
   });
 
   describe('add subcommand', () => {
@@ -200,7 +201,7 @@ describe('command:dx-stack', () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
         commandResult = await execa('node', [cli, 'init', testStacks.fromGit.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
-        expect(commandResult.stderr).to.contain(`command-argument value '${testStacks.fromGit.name}' is invalid for argument 'stackName'`);
+        expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromGit.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
@@ -233,7 +234,7 @@ describe('command:dx-stack', () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
         commandResult = await execa('node', [cli, 'init', testStacks.fromGitAndPath.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
-        expect(commandResult.stderr).to.contain(`command-argument value '${testStacks.fromGitAndPath.name}' is invalid for argument 'stackName'`);
+        expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromGitAndPath.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
@@ -266,7 +267,7 @@ describe('command:dx-stack', () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
         commandResult = await execa('node', [cli, 'init', testStacks.fromLocalFolder.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
-        expect(commandResult.stderr).to.contain(`command-argument value '${testStacks.fromLocalFolder.name}' is invalid for argument 'stackName'`);
+        expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromLocalFolder.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
