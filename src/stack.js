@@ -58,7 +58,7 @@ class Stack {
   }
 
   async _loadDexaCustomPropertiesFile(){
-    const emptyProperties = { init: {}, add: [], generate: [] };
+    const emptyProperties = { init: {}, add: {}, generate: {} };
 
     // Defining a .dexa.js file is optional. If not found, return empty options
     const dexaCustomPropertiesFilePath = path.resolve(this.locationPath, './dexa.js');
@@ -103,7 +103,7 @@ class Stack {
       .map(f => {
         // Create a Template object, merging its properties with any custom ones defined in the stack's dexa.js file
         const name = path.basename(f); // use folder name as the template name
-        const customTemplateProperties = dexaCustomProperties.add.find(template => template.name == name);
+        const customTemplateProperties = dexaCustomProperties.add[name];
         return new Template(Object.assign({
           name,
           path: f,
@@ -128,7 +128,7 @@ class Stack {
       .map(f => {
         // Create a Template object, merging its properties with any custom ones defined in the stack's dexa.js file
         const name = path.basename(f); // use folder name as the template name
-        const customTemplateProperties = dexaCustomProperties.generate.find(template => template.name == name);
+        const customTemplateProperties = dexaCustomProperties.generate[name];
         return new Template(Object.assign({
           name,
           path: f,
