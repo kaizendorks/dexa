@@ -1,23 +1,29 @@
 # dexa
 
-dexa is a CLI tool that allows developers and teams to capture their preferred tech stacks as a project template and a set of code generators.
+> create awesome project templates turbocharged with generators/scaffolders!
 
-Each of these stacks is captured as a git repository. Create them in a publicly available service such as Github to encourage usage and sharing across the wider community. But you are also free to use dexa with private repositories.
+dexa is a CLI tool that allows developers and teams to capture their preferred _tech stacks_ as a project template and a set of code generators.
 
-> Requires **Node.js 14** or later!
+Each of these stacks can be distributed as a git repository. Create them in a publicly available service such as Github to encourage usage and sharing across the wider community. But you are also free to use dexa with private repositories.
 
 * [Installation](#installation)
-* [Introduction](#introduction)
+* [Getting started](#getting-started)
+* [Reference](#reference)
+    * [Installing stacks](#installing-stacks)
+    * [Using stacks](#using-stacks)
+    * [Creating stacks](#creating-stacks)
+* [API](#api)
+* [Examples](#examples)
+* [FAQ](#introduction)
     * [How can dexa help you?](#how-can-dexa-help-you)
     * [Is it limited to JavaScript projects?](#is-it-limited-to-javascript-projects)
     * [Can I use a project template without generators?](#can-i-use-a-project-template-without-generators)
-* [Usage](#usage)
-* [API](#api)
-* [Examples](#examples)
-* [Roadmap](#roadmap)
+* [Changelog and Roadmap](#changelog-and-roadmap)
 * [Licence](#license)
 
 ## Installation
+
+> Requires **Node.js 14** or later!
 
 You can install dexa as a global tool, making the `dx` executable available in your shell:
 ```sh
@@ -25,14 +31,235 @@ You can install dexa as a global tool, making the `dx` executable available in y
 npm install -g dexa
 # verify
 dx --version
+dx stack list
 ```
 
 Alternatively, you can use `npx` to run dexa commands without installing as a global tool:
 ```sh
 npx dexa --version
+npx dexa stack list
 ```
 
-## Introduction
+## Getting started
+
+### What is a stack
+Dexa allows users to create and use **stacks**, where each stack is a project template combined with code generators. To better understand what a **stack** is, let's use an existing stack in our test samples.
+
+The [hello-world-stack](test/stack-fixtures/hello-world-stack) creates a _hello world_ Node.js console application. To install it, use the `dx stack add` command, pointing to the git repo where the stack is located
+```
+dx stack add hello-world https://github.com/kaizendorks/dexa/test/stack-fixtures/hello-world-stack
+```
+
+Let's now create a **project** using the stack. For this, you use the `dx init` command and the name you gave to the stack when installed.
+```
+dx init hello-world my-first-project
+```
+> You can see all the installed stacks with `dx init --help`
+
+Once finished, it will have created a new folder named `my-first-project`, which contains the project created by the stack.
+Let's run the project to verify it indeed created a working project:
+```
+cd ./my-first-project
+node index.js
+Hello World!
+```
+
+Awesome, looks like the stack successfully creates hello world console applications.
+
+Let's now explore the **code generators** available with this stack. Any stack can define 2 flavours of generators:
+- **features**, which are added to your project with the `dx add` command. These are meant to be optional features that are optionally _added once_ to each project
+- **scaffolders**, which encapsulate the boilerplate for elementes of which you can add many to your project
+
+> Each stack is defined with a particular domain in mind, so the generators implemented by each stack will be based on that context. For example, a stack for creating web applications with Vue.js and Fastify migh provide _features_ such as `unit-test`, `i18n` or `graphQL`, and _scaffolders_ such as `page`, `component` or `rest-api`.
+
+Let's see them in action. Begin by adding the `unit-test` feature:
+```
+dx add unit-test
+```
+
+This has added a very simple unit test to our project. For completeness, let's verify it works
+```
+node ./test/greeter.test.js
+```
+
+Great, now let's scaffold a new `greeter` so the application says more than `"Hello World"`
+```
+dx generate greeter tutorial
+```
+
+And verify it generated working code
+```
+node index.js
+Hello World!
+Hello World from the greeter tutorial!
+```
+
+> Note the parameter `tutorial` provided in the command has been used inside the template of the `greeter` scaffolder.
+
+Yay, the stack can generate code! You can cleanup with:
+```
+cd ../
+rm -rf ./my-first-project
+dx stack delete hello-world
+```
+
+### How to create a stack
+
+The sample hello world stack we have seen above is great to get a sense on how dexa works. But chances are that you are not interested in creating more Node.js hello world applications.
+
+The good news are that you can create your own stacks, and define whatever project templates and generators you want!
+Let's see how to create one.
+
+A stack just needs to follow a certain structure organising the templates:
+```
+/init
+  the project template
+/add
+  each feature has a subfolder with its template
+/generate
+  each scaffolder has a subfolder with its template
+```
+> This is the basic structure. See the reference guide for more advanced usages
+
+To make things even simpler, dexa comes with a predefined stack named `dexa-stack` that can be used to create your own stacks:
+```
+dx init dexa-stack my-stack
+```
+
+If you inspect the generated files, it looks like this:
+```
+my-stack
+├── README.md
+├── add
+│   └── README.md
+├── generate
+│   └── README.md
+└── init
+    ├── sample-copy.md
+    └── sample-template.md.hbs
+```
+
+> Those various README.md files contain valuable information on how a stack works and how you can update the project template as well as creating your own code generators.
+
+Can we now test our stack? Yes you can test it directly from its local folder, without publishing it to git.
+
+As per the development instructions in the generated README.md file, install the stack by running in its root folder:
+```
+dx stack add my-stack $(pwd)
+```
+
+Now on a separated terminal and folder, try generating a project using your stack:
+```
+dx init my-stack test-project
+```
+
+If you inspect the generated project, you will notice the stack used the template defined inside its ./init folder.
+```
+test-project
+├── sample-copy.md
+└── sample-template.md
+```
+
+Take a moment to inspect the files inside the `./init` template folder. Notice how the `.hbs` extension makes the file a dynamic template with placeholders. If you want to regenerate the project after modifying the files, use the same init command with the override flag (`--override` or `-o`):
+```
+dx init my-stack test-project --override
+```
+
+### How to add code generators to a stack
+
+Let's now see how to define code generators. Each generator is just a folder containing a template similar to the `./init` template. The template folder for a feature generator lives inside the `./add` folder, while the template folder for a scaffolder lives inside the `./generate` folder.
+
+You can manually create these folders, or use the commands provided by the `dexa-stack` stack. For example, lets add a feature template using:
+```
+dx generate feature my-feature
+```
+
+Your stack should now like follows:
+```
+my-stack
+├── README.md
+├── add
+│   ├── README.md
+│   └── my-feature
+│       └── README.md
+├── generate
+│   └── README.md
+└── init
+    ├── sample-copy.md
+    └── sample-template.md.hbs
+```
+
+Take a moment to create some files and subfolder inside the `./add/my-feature` folder.
+
+Once you are ready, navigate to the folder where you created the `test-project`. Let's try your feature generator:
+```
+dx add my-feature
+```
+
+Awesome! You have created your first feature generator.
+
+Try the same with the scaffolder. Back at the root of the stack definition, run (please bear with me):
+```
+dx generate generator my-generator
+```
+
+Notice there is a new folder `./generate/my-generator` which contains the template for the new generator.
+```
+my-stack
+├── README.md
+├── add
+│   ├── README.md
+│   └── my-feature
+│       └── README.md
+├── generate
+│   ├── README.md
+│   └── my-generator
+│       └── README.md
+└── init
+    ├── sample-copy.md
+    └── sample-template.md.hbs
+```
+
+As before, take another moment to update/create files inside the template folder `./generate/my-generator`.
+
+> When a user invokes a `dx generate` command, in addition to the name of the generator, there is a second parameter which is the name of that particular instance of the generator.
+> For example, assume a generator that creates new REST APIs. You might run `dx generate rest-api customer` and `dx generate rest-api profile` to create the customer and profile APIs respectively
+> The `__name__` part of any of the template file/folder names will be replaced with `customer` and `profile` respectively. Inside any `.hbs` files of the template, you can similarly use the placeholder `{{ userOptions.name }}`.
+
+Once you are ready, navigate to the `test-project` folder and give it a go:
+```
+dx generate my-generator foo
+```
+
+Great! And this finishes the basics on how to create your own stacks.
+
+> Check the reference section for more advanced scenarios like adding extra input parameters or defining functions to run when invoking the code generators.
+
+The only remaining (optional) step is to publish your stack so others can use it. Simply publish the stack to a git repo, allowing anyone with access to that repo to install it using a command like `dx stack add https://github.com/username/reponame`.
+
+## Reference
+
+### Installing stacks
+
+TBC
+
+### Using stacks
+
+TBC
+
+### Creating stacks
+
+TBC
+
+## API
+
+TBC
+
+## Examples
+
+See [test stacks](test/stack-fixtures)
+
+## FAQ
 
 ### How can dexa help you?
 
@@ -40,7 +267,7 @@ Imagine you work in a team that frequently creates web applications with Vue3 an
 
 You might sometimes use docker, you can then expand your stack repo with another template that adds docker and compose files so you can `dx add docker`. In some projects you might use postgre while in others you might use mongoDB, you can then capture 2 further templates that allow you to `dx add postgre` or `dx add mongo` to your project.
 
-You will likely find yourself regularly creatin elements like pages or apis to your web application. Dexa can also help you by expanding your stack with template generators so you can `dx generate page new-page` or `dx generate api new-api`!
+You will likely find yourself regularly creating elements like pages or apis to your web application. Dexa can also help you by expanding your stack with template generators so you can `dx generate page new-page` or `dx generate api new-api`!
 
 This means you can create your dexa stack as a repo with the following structure:
 ```
@@ -70,7 +297,7 @@ Once the stack is defined in a repo:
 - Add stack features to a generated project by running `dx add` commands within the project root folder, as in `dx add docker`
 - Generate code by running `dx generate` commands within the project root folder, as in `dx generate page my-new-page`
 
-### Is it limited to JavaScript projects?
+### Is it limited to JavaScript or web projects?
 
 Absolutely not! While dexa is written in JavaScript, you can define stack templates for any language. In a nutshell, dexa will render the templates you define, what those templates contain is entirely up to you.
 
@@ -87,146 +314,12 @@ You will be able to create new projects using that template as in `dx init vue-v
 
 This is similar to using [degit](https://github.com/Rich-Harris/degit), except you can keep track of these templates as dexa stacks.
 
-## Usage
+# Changelog and Roadmap
 
-TBC
-
-## API
-
-TBC
-
-## Examples
-
-TBC
-
-## Roadmap
-
-Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
-
-### 0.1.0 - DONE
-Init:
-- DONE - create project from one of the current stacks init template
-- DONE - add integration tests
-
-Stack:
-- DONE add stack from git repo, using degit
-- DONE move predefined stacks away from "stacks.json" (which should be gitignored and just created on save by stacks-manager)
-- DONE add "init only" stack from git repo (ie, repo that doesnt have init/add/generate folders, the entire repo is just an init template)
-- DONE remove stack
-- DONE Add tests for add/init/remove stack from git
-- DONE allow specifying a "path" inside the repo, to support repos defining multiple stacks
-
-### 0.2.0 - DONE
-Init:
-- DONE - introduce project/stack classes
-- DONE - create a dexarc file after generating the project
-
-### 0.3.0 - DONE
-DONE Rewrite to ES6 (so we allow customizations to be done in ES6-style JS files, and we support top-level async/await code)
-
-Stack:
-- DONE allow adding stacks from local folders (not just git repos). Helps testing stacks themselves and also testing new features like prompt to install stack when execuring dx add commands.
-
-Add:
-- DONE allow stacks to define their "add" commands, by just adding a template folder inside `/add`. No need for any extra config or metadata in `dexa.js`.
-- DONE The command has to be run in a project folder previously initialized with `dx init`. Specific error is returned if not
-- DONE automatically prompt user to install stack used in project if not currently installed locally. In order to add a test, adding stacks from local folders should be implemented.
-
-Generate:
-- DONE allow stacks to define their "generate" commands, by just adding a template folder inside `/generate`. No need for any extra config or metadata in `dexa.js`, all commands will take a `[name]` required argument as in `dx generate page my-new-page`. The command has to be run in a project folder previously initialized with `dx init`
-
-### 0.4.0 - IN PROGRESS
-
-General:
-- DONE added npmignore to exclude files from published package
-- DONE Refactor stack-manager to use top-level await when loading all the stacks. Every time a stack is loaded/created, its init/add/generate templates are loaded with an async method `loadTemplates` that combines default information with any custom properties defined in the optional `dexa.js` file of the stack.
-
-Template:
-- DONE rename the `render` method as `apply`, since not every template will copy/render files. Some might provide a custom overriden action and just use execa to for example `npx fastify-cli init`
-- add `makeVariant` method to manually handle scenarios where a template like `generate/api-crud` has subfolders like `/common`, `/mongo` or `/postgre` with some logic based on the project features and/or user provided options to determine which ones to render. This way in the overriding template's action method, the received template object can be used to `const commonTemplate = makeVariant('./common')` and later call `commonTemplate.render(...)` (and similar for the other variants) based on arbitrary logic as implemented by the stack.
-- allow conditional rendering of template files based on the user options. This could be done either through the file name with a convention like `myfile.hbs$$unitTests=true` meaning this file is only rendered when the user option `unitTests == true`. Alternatively, the extended options in `dexa.js` for a given template could contain an optional function to filter files based on user options (could receive an array of file paths and return a filtered array, or just return an array of regex/globs that template class will use to filter those files which match any regex/glob)
-
-Init:
-- optionally create new git repo and first commit
-- DONE add optional description for stack in dexa.js, use it as `program.description` when wiring all the `dx init` commands. (would need to refactor current dx-add.js to create a command per stack)
-- DONE add custom pre/post actions in stack's dexa.js. Call same signature than the .action (since its based on defined arguments/options)
-- override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
-
-Add:
-- allow extra config/metadata to be defined in dexa.js.
-    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
-    - The same description/pre/post/action than in init are available
-
-Generate:
-- allow extra config/metadata to be defined in dexa.js.
-    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
-    - The same description/pre/post/action than in init are available
-
-### 0.5.0
-
-General:
-- Should the template class be renamed as `command`? As ways for users to add pre/post action and override the default action of rendering files, it might make more sense. Perhaps the template class should remain as the general way of rendering files.
-
-Init:
-- add custom helpers for the templates via a property in the `dexa.js` file of the stack
-- add predefined helpers like camelCase, kebapCase, and relative path between files
-
-Add:
-- allow users to optionally include available "add" commands when initializing a project (with a prompt showing them so users can select them)
-- allow command to depend on other add commands (fail if not added before or prompt user to add?)
-
-Generate:
-- allow command to depend on some add command(s) (fail if not added before or prompt user to add?)
-
-### 0.6.0
-
-Stack:
-- manage versions of stacks (new command to update stack, keep track of version used with project). Stack version taken from the hash parameter of the source (as in `#v1.0.3`). Update command can be invoked as `dx stack update foo` so downloads and overrides the default version, or `dx stack update foo branch-or-tag` so it downloads version `#branch-or-tag`
-
-Add:
-- commands are version aware. If project was created with a specific stack version and that version isnt installed locally, it will download before executing the command
-
-Generate:
-- commands are version aware. If the project was created with a specific stack version and that version isnt installed locally, it will download before executing the command
-
-### 0.7.0
-
-Overrides:
-- projects can override specific generators by adding a `.dexa` folder at its root, with a similar structure than that of a regular stack. Any generate commands defined here take precedence over default ones in the stack
-- projects can add their own additional generate commands in a similar fashion
-
-### 0.8.0
-
-Init:
-- make the predefined hello-world a stack that only shows when enabling development/debug mode. Could be an environment variable, or check if process.env.npm_lifecycle_script exists and contains "mocha"?
-- once we have a repo with example stacks, repoint tests so we dont depend on 3rd party repos/templates that might change
-
-Stack:
-- predefined "init" only stack to create your own stack
-
-Sample stacks:
-- commander CLI stack
-- vite + fastify stack (can init templates be replaced by invoking vue-cli and fastify-cli???)
-- terraform stack
-
-# 0.9.0
-
-Docs:
-- Create vuepress docs site
-- Move questions to FAQ
-- Usage - how to create stacks, folder structure, static and handlebar files
-- Usage - how to create stacks, optional dexa.js metadata
-- Usage - how to create stacks, use predefined `dx init dexa-stack` stack
-- Usage - managing stacks. (Add from either git or local folder, list and delete stacks)
-- Usage - using stacks, how to create a project with a stack
-- Usage - using stacks, how to invoke add/generate commands with a stack
-- API - cli commands
-- API - stack definition, optional metadata structure
-- API - stack definition, arguments for metadata methods: defineCLICommand, pre/postAction, action
-- API - stack definition, parameters passed to handlebars files
-- Examples - predefined dexa-stack to create your own stacks
-- Examples - add `dexa-stacks` repository with stacks for: node-cli, vue-fastify, terraform
+See [CHANGELOG.md](./CHANGELOG.md)
 
 ## License
 
 MIT © [by its authors](https://github.com/kaizendorks/dexa/graphs/contributors)
+
+See [LICENSE.md](./LICENSE.md)
