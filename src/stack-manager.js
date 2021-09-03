@@ -51,10 +51,16 @@ const ensureStackFromProject = async (project) => {
   return stack;
 };
 
+// to be used only in integrationTests in order to faciliate cleanup (without having to execute dx stack delete commands, which is more expensive)
+const __reloadStacks = async() => {
+  stacks = await Stack.loadAll();
+}
+
 export {
   getStacks,
   getStackByname,
   addNewStack,
   deleteStackByName,
   ensureStackFromProject,
+  __reloadStacks
 };

@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import os from 'os';
+import url from 'url';
 import execa from 'execa';
 import { promisify } from 'util';
 import g from 'glob';
@@ -9,16 +10,13 @@ import chai from 'chai';
 import shallowDeepEqual from 'chai-shallow-deep-equal';
 const expect = chai.expect;
 chai.use(shallowDeepEqual);
-import { URL } from 'url';
 import config from '../../config/dexa.config.js';
-
-const testStack = {
-  name: 'hello-world',
-  location: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
-};
+import {
+  templatesOnlyStack,
+  // customPropertiesStack
+} from '../stack-fixtures/index.js';
 
 describe('command:dx-generate', () => {
-  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
   let tempDir;
 
   before(async () => {
@@ -33,36 +31,36 @@ describe('command:dx-generate', () => {
     let projectFolder;
 
     before(async () => {
-      await execa('node', [cli, 'init', testStack.name, 'cli-arguments'], { cwd: tempDir });
+      await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, 'cli-arguments'], { cwd: tempDir });
       projectFolder = path.resolve(tempDir, 'cli-arguments');
     });
 
     it('returns an error when executed outside of a project folder that was initialized with dx init', async () => {
-      const commandResult = await execa('node', [cli, 'generate'], { cwd: tempDir, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['generate'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
       expect(commandResult.stderr.replace(/\n/g, '')).to.match(/The folder ".*" does not contain a dexa project or its "\.dexarc" file cannot be found/s);
     });
 
     it('returns the help when the template name is missing', async () => {
-      const commandResult = await execa('node', [cli, 'generate'], { cwd: projectFolder, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['generate'], { cwd: projectFolder, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
       expect(commandResult.stderr).to.contain("Usage: dx-generate [options] [command]");
     });
   });
 
-  describe('when using the default hello-world stack', () => {
+  describe('when using a basic "templates only" stack', () => {
     let projectName = 'test-generate-greeter';
     let projectFolder;
 
     before(async () => {
-      await execa('node', [cli, 'init', testStack.name, projectName], { cwd: tempDir });
+      await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName], { cwd: tempDir });
       projectFolder = path.resolve(tempDir, projectName);
     });
 
     it('shows the expected generate templates in the automated help', async () => {
-      const commandResult = await execa('node', [cli, 'generate', '--help'], { cwd: projectFolder, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['generate', '--help'], { cwd: projectFolder, reject: false });
 
       expect(commandResult.exitCode).to.equal(0);
       [
@@ -73,7 +71,7 @@ describe('command:dx-generate', () => {
     });
 
     it('returns an error when there is no template with that name', async () => {
-      const commandResult = await execa('node', [cli, 'generate', 'non-existing-template'], { cwd: projectFolder, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['generate', 'non-existing-template'], { cwd: projectFolder, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
       expect(commandResult.stderr).to.contain("error: unknown command 'non-existing-template'");
@@ -89,7 +87,7 @@ describe('command:dx-generate', () => {
       ];
 
       before(async () => {
-        commandResult = await execa('node', [cli, 'generate', 'greeter', 'polite'], { cwd: projectFolder });
+        commandResult = await execa.node(config.dexaCLI, ['generate', 'greeter', 'polite'], { cwd: projectFolder });
         generatedFiles = await glob(path.resolve(projectFolder, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -106,22 +104,21 @@ describe('command:dx-generate', () => {
       describe('the generated template files', () => {
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js'));
+          const { default: argsInHandlebarsTemplates } = await import(url.pathToFileURL(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js')));
           expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
             project: {
               name: projectName,
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
               private: false,
             },
             template: {
               name: 'greeter',
-              path: path.resolve(testStack.location, 'generate/greeter'),
+              path: path.resolve(templatesOnlyStack.location, 'generate/greeter'),
             },
             userOptions: {
               name: 'polite',
@@ -130,7 +127,7 @@ describe('command:dx-generate', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World from the greeter polite!');
         });
       });
@@ -145,14 +142,14 @@ describe('command:dx-generate', () => {
         projectFolder = path.resolve(tempDir, projectName);
 
         // create project
-        await execa('node', [cli, 'init', testStack.name, projectName], { cwd: tempDir });
+        await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName], { cwd: tempDir });
 
         // ensure project folder already contains some of the files/subfolders to be generated by the generate command
         await fs.promises.mkdir(path.resolve(projectFolder, './src/greeters/polite'), { recursive: true });
         await fs.promises.writeFile(path.resolve(projectFolder, './src/greeters/polite/polite.greeter.js'), "definitely not valid JS code");
 
         // now run the generate command
-        commandResult = await execa('node', [cli, 'generate', 'greeter', 'polite', '--override'], { cwd: projectFolder });
+        commandResult = await execa.node(config.dexaCLI, ['generate', 'greeter', 'polite', '--override'], { cwd: projectFolder });
       });
 
       it('succeeds', () => {
@@ -162,22 +159,21 @@ describe('command:dx-generate', () => {
       describe('the generated and overridden template files', () => {
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js'));
+          const { default: argsInHandlebarsTemplates } = await import(url.pathToFileURL(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js')));
           expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
             project: {
               name: projectName,
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
               private: false,
             },
             template: {
               name: 'greeter',
-              path: path.resolve(testStack.location, 'generate/greeter'),
+              path: path.resolve(templatesOnlyStack.location, 'generate/greeter'),
             },
             userOptions: {
               name: 'polite',
@@ -187,7 +183,7 @@ describe('command:dx-generate', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World from the greeter polite!');
         });
       });
@@ -207,27 +203,27 @@ describe('command:dx-generate', () => {
     before(async () => {
       // create a copy of the existing "hello-world" predefined stack
       alternativeStack.location = path.resolve(tempDir, alternativeStack.name);
-      await fs.copy(testStack.location, alternativeStack.location, { recursive: true });
+      await fs.copy(templatesOnlyStack.location, alternativeStack.location, { recursive: true });
 
       // register it as a new stack
-      await execa('node', [cli, 'stack', 'add', alternativeStack.name, alternativeStack.location]);
+      await execa.node(config.dexaCLI, ['stack', 'add', alternativeStack.name, alternativeStack.location]);
 
       // create a new project using the added stack
-      await execa('node', [cli, 'init', alternativeStack.name, projectName], { cwd: tempDir });
+      await execa.node(config.dexaCLI, ['init', alternativeStack.name, projectName], { cwd: tempDir });
       projectFolder = path.resolve(tempDir, projectName);
 
       // now remove the stack
-      await execa('node', [cli, 'stack', 'delete', alternativeStack.name], { input: 'Y\n' });
+      await execa.node(config.dexaCLI, ['stack', 'delete', alternativeStack.name], { input: 'Y\n' });
     });
 
     after(async () => {
       // cleanup the stack added during the generate command
-      await execa('node', [cli, 'stack', 'delete', alternativeStack.name], { input: 'Y\n' });
+      await execa.node(config.dexaCLI, ['stack', 'delete', alternativeStack.name], { input: 'Y\n' });
     });
 
     it('prompts the user to install the stack before proceeding', async () => {
       const input = "n\n"; // simulate typing no when prompted
-      commandResult = await execa('node', [cli, 'generate', 'greeter', 'polite'], { cwd: projectFolder, input });
+      commandResult = await execa.node(config.dexaCLI, ['generate', 'greeter', 'polite'], { cwd: projectFolder, input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout).to.include(`The stack ${alternativeStack.name} is not installed locally. Do you want to add it?`);
@@ -237,7 +233,7 @@ describe('command:dx-generate', () => {
       before(async () => {
         // run the generate command, confirming that we want to install the missing stack
         const input = 'Y\n';
-        commandResult = await execa('node', [cli, 'generate', 'greeter', 'polite'], { cwd: projectFolder, input });
+        commandResult = await execa.node(config.dexaCLI, ['generate', 'greeter', 'polite'], { cwd: projectFolder, input });
       });
 
       it('succeeds', () => {
@@ -247,7 +243,7 @@ describe('command:dx-generate', () => {
       describe('the generated template files', () => {
 
         it('received the expected parameters for the handlebars templates', async () => {
-          const { default: argsInHandlebarsTemplates } = await import(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js'));
+          const { default: argsInHandlebarsTemplates } = await import(url.pathToFileURL(path.resolve(projectFolder, './src/greeters/polite/.dx-generate-args-trap.js')));
           expect(argsInHandlebarsTemplates).to.be.shallowDeepEqual({
             project: {
               name: projectName,
@@ -271,7 +267,7 @@ describe('command:dx-generate', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World from the greeter polite!');
         });
       });

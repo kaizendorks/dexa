@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import degit from 'degit';
 import config from '../config/dexa.config.js';
 import Template from './template.js';
+import { pathToFileURL } from 'url';
 
 const defaultValues = () => ({
   name: '',
@@ -66,7 +67,8 @@ class Stack {
 
     // If exists, import the file.
     // It is expected that dexa.js will contain a default export, being an object that defines properties
-    let dexaCustomProperties = await import(dexaCustomPropertiesFilePath);
+    // NOTE: dynamic imports using absolute paths require a "file://" in windows! see https://github.com/nodejs/node/issues/31710
+    let dexaCustomProperties = await import(pathToFileURL(dexaCustomPropertiesFilePath));
     if (dexaCustomProperties.default) dexaCustomProperties = dexaCustomProperties.default; // Do not assume there is a default property, in case they used commonJS
 
     return Object.assign(emptyProperties, dexaCustomProperties);

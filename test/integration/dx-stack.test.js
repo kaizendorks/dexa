@@ -5,9 +5,8 @@ import { promisify } from 'util';
 import g from 'glob';
 const glob = promisify(g);
 import { expect } from 'chai';
-import { URL } from 'url';
 import config from '../../config/dexa.config.js';
-import Stack from '../../src/stack.js';
+import { __reloadStacks, getStacks, deleteStackByName } from '../../src/stack-manager.js';
 
 const testStacks = {
   predefined: {
@@ -29,15 +28,17 @@ const testStacks = {
 };
 
 describe('command:dx-stack', () => {
-  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
 
-  before(async () => {
-    if (fs.existsSync(config.stacks.databaseJSONFile)){
-      await fs.promises.rm(config.stacks.databaseJSONFile);
+  // Cleanup any remains of the additional test stacks used in these tests
+  after(async () => {
+    await __reloadStacks();
+
+    const stacksToCleanup = [testStacks.fromGit, testStacks.fromGitAndPath, testStacks.fromLocalFolder];
+    for (const stack of getStacks()){
+      if (!stacksToCleanup.find(s => s.name === stack.name)) continue;
+
+      await deleteStackByName(stack.name);
     }
-    const stacks = await Stack.loadAll();
-    await Promise.all(
-      stacks.filter(s => !s.predefined).map(s => s.cleanup()));
   });
 
   describe('add subcommand', () => {
@@ -45,14 +46,14 @@ describe('command:dx-stack', () => {
 
     describe('without the required arguments', () => {
       it('returns an error when no stack name is provided', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add'], { reject: false });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'add'], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain("error: missing required argument 'name'");
       });
 
       it('returns an error when no git repo is provided', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', 'my-new-stack'], { reject: false });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'add', 'my-new-stack'], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain("error: missing required argument 'origin'");
@@ -61,7 +62,7 @@ describe('command:dx-stack', () => {
 
     describe('when pointed at a git repository', () => {
       before(async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGit.name, testStacks.fromGit.origin])
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'add', testStacks.fromGit.name, testStacks.fromGit.origin])
       });
 
       it('succeeds', () => {
@@ -83,14 +84,14 @@ describe('command:dx-stack', () => {
 
       it('the stack can be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromGit.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromGit.name], { input });
         expect(commandResult.exitCode).to.equal(0);
       });
     });
 
     describe('when pointed at a path inside a git repository', () => {
       before(async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromGitAndPath.name, testStacks.fromGitAndPath.origin])
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'add', testStacks.fromGitAndPath.name, testStacks.fromGitAndPath.origin])
       });
 
       it('succeeds', () => {
@@ -110,14 +111,14 @@ describe('command:dx-stack', () => {
 
       it('the stack can be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromGitAndPath.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromGitAndPath.name], { input });
         expect(commandResult.exitCode).to.equal(0);
       });
     });
 
     describe('when pointed at a local folder', () => {
       before(async () => {
-        commandResult = await execa('node', [cli, 'stack', 'add', testStacks.fromLocalFolder.name, testStacks.fromLocalFolder.origin])
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'add', testStacks.fromLocalFolder.name, testStacks.fromLocalFolder.origin])
       });
 
       it('succeeds', () => {
@@ -126,7 +127,7 @@ describe('command:dx-stack', () => {
 
       it('the stack can be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromLocalFolder.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromLocalFolder.name], { input });
         expect(commandResult.exitCode).to.equal(0);
       });
     });
@@ -136,7 +137,7 @@ describe('command:dx-stack', () => {
     let commandResult;
 
     before(async () => {
-      commandResult = await execa('node', [cli, 'stack', 'list'])
+      commandResult = await execa.node(config.dexaCLI, ['stack', 'list'])
     });
 
     it('succeeds', () => {
@@ -164,21 +165,21 @@ describe('command:dx-stack', () => {
 
     describe('without the required arguments', () => {
       it('returns an error when no stack name is provided', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'delete'], { reject: false });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete'], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain("error: missing required argument 'name'");
       });
 
       it('returns an error when the provided stack name does not exists', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'delete', 'non-existing-stack'], { reject: false });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete', 'non-existing-stack'], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain("command-argument value 'non-existing-stack' is invalid for argument 'name'");
       });
 
       it('returns an error when trying to remove a predefined stack', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'delete', testStacks.predefined.name], { reject: false });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete', testStacks.predefined.name], { reject: false });
 
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain(`command-argument value '${testStacks.predefined.name}' is invalid for argument 'name'`);
@@ -190,7 +191,7 @@ describe('command:dx-stack', () => {
 
       before(async () => {
         const input = "Y\n"; // simulate user confirming deletion
-        commandResult = await execa('node', [cli, 'stack', 'delete', testStacks.fromGit.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete', testStacks.fromGit.name], { input });
       });
 
       it('succeeds', () => {
@@ -199,13 +200,13 @@ describe('command:dx-stack', () => {
 
       it('the stack cannot be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromGit.name], { input, reject:false });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromGit.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromGit.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'list']);
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'list']);
         expect(commandResult.exitCode).to.equal(0);
         expect(commandResult.stdout).not.to.contain(testStacks.fromGit.name);
       });
@@ -223,7 +224,7 @@ describe('command:dx-stack', () => {
 
       before(async () => {
         const input = "Y\n"; // simulate user confirming deletion
-        commandResult = await execa('node', [cli, 'stack', 'delete', testStacks.fromGitAndPath.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete', testStacks.fromGitAndPath.name], { input });
       });
 
       it('succeeds', () => {
@@ -232,13 +233,13 @@ describe('command:dx-stack', () => {
 
       it('the stack cannot be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromGitAndPath.name], { input, reject:false });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromGitAndPath.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromGitAndPath.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'list']);
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'list']);
         expect(commandResult.exitCode).to.equal(0);
         expect(commandResult.stdout).not.to.contain(testStacks.fromGitAndPath.name);
       });
@@ -256,7 +257,7 @@ describe('command:dx-stack', () => {
 
       before(async () => {
         const input = "Y\n"; // simulate user confirming deletion
-        commandResult = await execa('node', [cli, 'stack', 'delete', testStacks.fromLocalFolder.name], { input });
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'delete', testStacks.fromLocalFolder.name], { input });
       });
 
       it('succeeds', () => {
@@ -265,13 +266,13 @@ describe('command:dx-stack', () => {
 
       it('the stack cannot be used with the init command', async () => {
         const input = 'n\n'; // simulate user entering "n" to the confirmation question, so we dont actually create a project
-        commandResult = await execa('node', [cli, 'init', testStacks.fromLocalFolder.name], { input, reject:false });
+        commandResult = await execa.node(config.dexaCLI, ['init', testStacks.fromLocalFolder.name], { input, reject:false });
         expect(commandResult.exitCode).to.equal(1);
         expect(commandResult.stderr).to.contain(`error: unknown command '${testStacks.fromLocalFolder.name}'`);
       });
 
       it('the stack no longer appears in the list command', async () => {
-        commandResult = await execa('node', [cli, 'stack', 'list']);
+        commandResult = await execa.node(config.dexaCLI, ['stack', 'list']);
         expect(commandResult.exitCode).to.equal(0);
         expect(commandResult.stdout).not.to.contain(testStacks.fromLocalFolder.name);
       });

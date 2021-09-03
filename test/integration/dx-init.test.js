@@ -9,21 +9,19 @@ const glob = promisify(g);
 import { use as chaiUse, expect} from 'chai';
 import shallowDeepEqual from 'chai-shallow-deep-equal';
 chaiUse(shallowDeepEqual);
-import { URL } from 'url';
 import Project from '../../src/project.js';
 import config from '../../config/dexa.config.js';
-
-const testStack = {
-  name: 'hello-world',
-  location: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
-};
+import {
+  templatesOnlyStack,
+  // initOnlyStack,
+  // customPropertiesStack
+} from '../stack-fixtures/index.js';
 
 const loadPackageJson = (projectFolder) => {
   return JSON.parse(fs.readFileSync(path.resolve(projectFolder, 'package.json')));
 }
 
 describe('command:dx-init', () => {
-  const cli = new URL('../../bin/dx.js', import.meta.url).pathname;
   let tempDir;
 
   before(async () => {
@@ -36,14 +34,14 @@ describe('command:dx-init', () => {
 
   describe('without the required arguments', () => {
     it('returns an error when no stack is provided', async () => {
-      const commandResult = await execa('node', [cli, 'init'], { cwd: tempDir, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['init'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
       expect(commandResult.stderr).to.contain("Usage: dx-init [options] [command]");
     });
 
     it('returns an error when the stack doesnt exist', async () => {
-      const commandResult = await execa('node', [cli, 'init', 'non-existing-stack'], { cwd: tempDir, reject: false });
+      const commandResult = await execa.node(config.dexaCLI, ['init', 'non-existing-stack'], { cwd: tempDir, reject: false });
 
       expect(commandResult.exitCode).to.equal(1);
       expect(commandResult.stderr).to.contain("error: unknown command 'non-existing-stack'");
@@ -53,7 +51,7 @@ describe('command:dx-init', () => {
   describe('when the destination folder exists', () => {
     it('asks for confirmation when generating a project in the current folder', async () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
-      const commandResult = await execa('node', [cli, 'init', testStack.name], { cwd: tempDir, input });
+      const commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name], { cwd: tempDir, input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.contain("Generate project in current directory? (Y/n)");
@@ -63,7 +61,7 @@ describe('command:dx-init', () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
       const folderToRunCommand = path.resolve(tempDir, '..'); // run "dx init" in the parent folder of the generated temp folder
       const projectName = path.basename(tempDir); // using the name of the temp folder as the project name, thus ensuring there is already a folder with that name
-      const commandResult = await execa('node', [cli, 'init', testStack.name, projectName], { cwd: folderToRunCommand, input });
+      const commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName], { cwd: folderToRunCommand, input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.match(/Target directory exists .* Continue\?/s);
@@ -73,14 +71,14 @@ describe('command:dx-init', () => {
       const input = 'n\n'; // simulate user entering "n" to the confirmation question
       const folderToCreateProject = path.resolve(tempDir, '..'); // run "dx init -p" pointing to the the parent folder of the generated temp folder
       const projectName = path.basename(tempDir); // using the name of the temp folder as the project name, thus ensuring there is already a folder with that name
-      const commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '-p', folderToCreateProject], { input });
+      const commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName, '-p', folderToCreateProject], { input });
 
       expect(commandResult.exitCode).to.equal(0);
       expect(commandResult.stdout.replace(/\n/g, '')).to.match(/Target directory exists .* Continue\?/s);
     });
   });
 
-  describe('when using the default hello-world stack', () => {
+  describe('when using a basic "templates only" stack', () => {
     const expectedFiles = [
       '.dexarc',
       '.gitignore',
@@ -100,7 +98,7 @@ describe('command:dx-init', () => {
         await fs.promises.mkdir(projectFolder, {recursive: true });
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', testStack.name], { cwd: projectFolder, input });
+        commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name], { cwd: projectFolder, input });
         generatedFiles = await glob(path.resolve(projectFolder, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -121,8 +119,8 @@ describe('command:dx-init', () => {
           name: projectName,
           locationPath: projectFolder,
           stackReference: {
-            name: testStack.name,
-            origin: testStack.location,
+            name: templatesOnlyStack.name,
+            origin: templatesOnlyStack.location,
             private: false,
           },
           features: [],
@@ -143,14 +141,13 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
             },
             template: {
               name: 'init',
-              path: path.resolve(testStack.location, 'init'),
+              path: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -159,7 +156,7 @@ describe('command:dx-init', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World!');
         });
       });
@@ -175,7 +172,7 @@ describe('command:dx-init', () => {
         projectFolder = path.resolve(tempDir, projectName);
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', testStack.name, projectName], { cwd: tempDir, input });
+        commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName], { cwd: tempDir, input });
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -196,8 +193,8 @@ describe('command:dx-init', () => {
           name: 'my-project',
           locationPath: projectFolder,
           stackReference: {
-            name: testStack.name,
-            origin: testStack.location,
+            name: templatesOnlyStack.name,
+            origin: templatesOnlyStack.location,
             private: false,
           },
           features: [],
@@ -218,15 +215,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
               private: false,
             },
             template: {
               name: 'init',
-              path: path.resolve(testStack.location, 'init'),
+              path: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -235,7 +231,7 @@ describe('command:dx-init', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World!');
         });
       });
@@ -251,7 +247,7 @@ describe('command:dx-init', () => {
         projectFolder = path.resolve(tempDir, projectName);
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '-p', tempDir], { input }); // instead of executing the command using tempDir as the "cwd", we use the "-p" parameter allowed by the dx init command
+        commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName, '-p', tempDir], { input }); // instead of executing the command using tempDir as the "cwd", we use the "-p" parameter allowed by the dx init command
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -272,8 +268,8 @@ describe('command:dx-init', () => {
           name: 'my-project-with-path',
           locationPath: projectFolder,
           stackReference: {
-            name: testStack.name,
-            origin: testStack.location,
+            name: templatesOnlyStack.name,
+            origin: templatesOnlyStack.location,
             private: false,
           },
           features: [],
@@ -294,15 +290,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
               private: false,
             },
             template: {
               name: 'init',
-              path: path.resolve(testStack.location, 'init'),
+              path: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -311,7 +306,7 @@ describe('command:dx-init', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World!');
         });
       });
@@ -333,7 +328,7 @@ describe('command:dx-init', () => {
         await fs.promises.writeFile(path.resolve(projectFolder, 'package.json'), '{"the": "existing file"}');
 
         const input = '\n'; // simulate user entering "Y" to the confirmation question
-        commandResult = await execa('node', [cli, 'init', testStack.name, projectName, '--override'], { cwd: tempDir, input });
+        commandResult = await execa.node(config.dexaCLI, ['init', templatesOnlyStack.name, projectName, '--override'], { cwd: tempDir, input });
         generatedFiles = await glob(path.resolve(tempDir, '**', '*'), { dot: true, nodir: true });
       });
 
@@ -361,15 +356,14 @@ describe('command:dx-init', () => {
               features: [],
             },
             stack: {
-              name: testStack.name,
-              predefined: true,
-              origin: testStack.location,
-              locationPath: testStack.location,
+              name: templatesOnlyStack.name,
+              origin: templatesOnlyStack.location,
+              locationPath: templatesOnlyStack.location,
               private: false,
             },
             template: {
               name: 'init',
-              path: path.resolve(testStack.location, 'init'),
+              path: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: true
@@ -378,7 +372,7 @@ describe('command:dx-init', () => {
         });
 
         it('have the expected contents so we have a working node project', async () => {
-          const generatedProjectResult = await execa('node', ['index.js'], { cwd: projectFolder });
+          const generatedProjectResult = await execa.node('index.js', { cwd: projectFolder });
           expect(generatedProjectResult.stdout).to.include('Hello World!');
         });
       });

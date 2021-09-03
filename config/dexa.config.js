@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import { URL } from 'url';
+import { fileURLToPath } from 'url';
 
-const dexaRoot = new URL('../', import.meta.url).pathname;
+const dexaRoot = path.resolve(fileURLToPath(import.meta.url), '../../');
 const packageJSON = JSON.parse(fs.readFileSync(
   path.resolve(dexaRoot, 'package.json')));
 
 export default {
   dexaRoot,
+  dexaCLI: path.resolve(dexaRoot, packageJSON.bin.dx),
   version: packageJSON.version,
   project: {
     rcfile: '.dexarc',
