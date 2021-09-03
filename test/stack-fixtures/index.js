@@ -1,8 +1,7 @@
-// import execa from 'execa';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import config from '../../config/dexa.config.js';
 import { __reloadStacks, addNewStack, getStacks, deleteStackByName } from '../../src/stack-manager.js';
+import customPropertiesStackDefinition from './custom-properties-stack/dexa.js';
 
 const stackFixturesFolder = path.resolve(fileURLToPath(import.meta.url), '../');
 
@@ -23,6 +22,7 @@ const testStacks = [
   // A stack that in addition to init/add/generate templates, has a dexa.js file with custom properties
   {
     name: 'custom-properties-stack',
+    description: customPropertiesStackDefinition.init.description,
     location: path.resolve(stackFixturesFolder, './custom-properties-stack'),
   }
 ];

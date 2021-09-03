@@ -1,3 +1,6 @@
+import { assert } from 'console';
+import fs from 'fs';
+
 // This file is optional. Dexa is able to inspect the folder structre:
 //      /hello-world
 //        /init
@@ -22,9 +25,25 @@ export default {
   init: {
     description: 'Create a new hello-world console app to verify that dexa works as expected',
     async preAction({project, stack, template, userOptions}){
+      // running async code is allowed
+      const projectFolderExists = await fs.promises.stat(project.locationPath).catch(() => false);
+
+      // can modify the provided userOptions
+      Object.assign(userOptions, {
+        myInjectedOption: 42,
+        projectFolderExists
+      });
+
       console.log(`Running the preAction method on: project=${project.name}, stack=${stack.name}, template=${template.name}, options=${userOptions}`);
     },
     async postAction({project, stack, template, userOptions}){
+      // running async code is also allowed
+      const projectFolderExists = await fs.promises.stat(project.locationPath).catch(() => false);
+
+      // should have run _after_ both the preAction and action
+      assert(projectFolderExists);
+      assert(userOptions.myInjectedOption === 42);
+
       console.log(`Running the postAction method on: project=${project.name}, stack=${stack.name}, template=${template.name}, options=${userOptions}`);
     }
   }

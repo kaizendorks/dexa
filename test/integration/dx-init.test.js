@@ -12,9 +12,9 @@ chaiUse(shallowDeepEqual);
 import Project from '../../src/project.js';
 import config from '../../config/dexa.config.js';
 import {
+  initOnlyStack,
   templatesOnlyStack,
-  // initOnlyStack,
-  // customPropertiesStack
+  customPropertiesStack,
 } from '../stack-fixtures/index.js';
 
 const loadPackageJson = (projectFolder) => {
@@ -378,6 +378,187 @@ describe('command:dx-init', () => {
       });
     });
 
+  });
+
+  describe('when using an "init only" stack', () => {
+    const expectedFiles = [
+      '.dexarc',
+      '.gitignore',
+      'index.js',
+      'package.json',
+      `src/greeter.js`
+    ];
+
+    describe('can generate a project', () => {
+      let projectName = 'test-init-only-stack';
+      let projectFolder;
+      let commandResult;
+      let generatedFiles;
+
+      before(async () => {
+        projectFolder = path.resolve(tempDir, projectName);
+
+        commandResult = await execa.node(config.dexaCLI, ['init', initOnlyStack.name, projectName], { cwd: tempDir });
+        generatedFiles = await glob(path.resolve(projectFolder, '**', '*'), { dot: true, nodir: true });
+      });
+
+      it('succeeds', () => {
+        expect(commandResult.exitCode).to.equal(0);
+      });
+
+      expectedFiles.forEach(file => {
+        it(`generated the ${file} file`, () => {
+          expect(generatedFiles).to.include(path.resolve(projectFolder, file));
+        });
+      });
+
+      it('generated a dexarc file with the project and stack details', () => {
+        const project = Project.load(projectFolder);
+
+        expect(project).to.be.shallowDeepEqual({
+          name: projectName,
+          locationPath: projectFolder,
+          stackReference: {
+            name: initOnlyStack.name,
+            origin: initOnlyStack.location,
+            private: false,
+          },
+          features: [],
+        });
+      });
+
+      describe('the generated project files', () => {
+        it('use the current folder name as the project name', async () => {
+          const generatedPackageJson = loadPackageJson(projectFolder);
+          expect(generatedPackageJson.name).to.equal(projectName);
+        });
+
+        it('received the expected parameters for the handlebars templates', async () => {
+          const generatedPackageJson = loadPackageJson(projectFolder);
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: initOnlyStack.name,
+              origin: initOnlyStack.location,
+              locationPath: initOnlyStack.location,
+            },
+            template: {
+              name: 'init',
+              path: initOnlyStack.location,
+            },
+            userOptions: {
+              override: false
+            }
+          });
+        });
+
+        it('have the expected contents so we have a working node project', async () => {
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
+          expect(generatedProjectResult.stdout).to.include('Hello World!');
+        });
+      });
+    });
+  });
+
+  describe('when using a stack with customizations for the init command', () => {
+    const expectedFiles = [
+      '.dexarc',
+      '.gitignore',
+      'index.js',
+      'package.json',
+      `src/greeter.js`
+    ];
+
+    it('shows the custom stack description with "dx init"', async () => {
+      const commandResult = await execa.node(config.dexaCLI, ['init'], { reject: false });
+      expect(commandResult.stderr).to.include(customPropertiesStack.description);
+    });
+
+    describe('can generate a project', () => {
+      let projectName = 'test-init-with-customizations';
+      let projectFolder;
+      let commandResult;
+      let generatedFiles;
+
+      before(async () => {
+        projectFolder = path.resolve(tempDir, projectName);
+
+        commandResult = await execa.node(config.dexaCLI, ['init', customPropertiesStack.name, projectName], { cwd: tempDir });
+        generatedFiles = await glob(path.resolve(projectFolder, '**', '*'), { dot: true, nodir: true });
+      });
+
+      it('succeeds', () => {
+        expect(commandResult.exitCode).to.equal(0);
+      });
+
+      it('executes the preAction custom function', () => {
+        expect(commandResult.stdout).to.include(`Running the preAction method on: project=${projectName}, stack=${customPropertiesStack.name}`);
+      });
+
+      it('executes the postAction custom function', () => {
+        expect(commandResult.stdout).to.include(`Running the postAction method on: project=${projectName}, stack=${customPropertiesStack.name}`);
+      });
+
+      expectedFiles.forEach(file => {
+        it(`generated the ${file} file`, () => {
+          expect(generatedFiles).to.include(path.resolve(projectFolder, file));
+        });
+      });
+
+      it('generated a dexarc file with the project and stack details', () => {
+        const project = Project.load(projectFolder);
+
+        expect(project).to.be.shallowDeepEqual({
+          name: projectName,
+          locationPath: projectFolder,
+          stackReference: {
+            name: customPropertiesStack.name,
+            origin: customPropertiesStack.location,
+            private: false,
+          },
+          features: [],
+        });
+      });
+
+      describe('the generated project files', () => {
+        it('use the provided folder as the project name', async () => {
+          const generatedPackageJson = loadPackageJson(projectFolder);
+          expect(generatedPackageJson.name).to.equal(projectName);
+        });
+
+        it('received the expected parameters for the handlebars templates, including additional custom properties', async () => {
+          const generatedPackageJson = loadPackageJson(projectFolder);
+          expect(generatedPackageJson.dexaInitArguments).to.be.shallowDeepEqual({
+            project: {
+              name: projectName,
+              features: [],
+            },
+            stack: {
+              name: customPropertiesStack.name,
+              origin: customPropertiesStack.location,
+              locationPath: customPropertiesStack.location,
+            },
+            template: {
+              name: 'init',
+              path: path.resolve(customPropertiesStack.location, './init'),
+            },
+            userOptions: {
+              override: false,
+              myInjectedOption: 42,
+              projectFolderExists: false
+            }
+          });
+        });
+
+        it('have the expected contents so we have a working node project', async () => {
+          const generatedProjectResult = await execa.node('index.js', [], { cwd: projectFolder });
+          expect(generatedProjectResult.stdout).to.include('Hello World!');
+        });
+      });
+    });
   });
 
 });
