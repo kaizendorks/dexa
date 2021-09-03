@@ -8,8 +8,8 @@ const stackFixturesFolder = path.resolve(fileURLToPath(import.meta.url), '../');
 const testStacks = [
   // A stack with init/add/generate templates, but no dexa.js file with custom properties
   {
-    name: 'templates-only-stack',
-    location: path.resolve(stackFixturesFolder, './templates-only-stack'),
+    name: 'hello-world-stack',
+    location: path.resolve(stackFixturesFolder, './hello-world-stack'),
   },
 
   // A stack with no init/add/generate templates
