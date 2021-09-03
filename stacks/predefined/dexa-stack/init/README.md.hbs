@@ -1,0 +1,28 @@
+# {{ project.name }}
+
+A stack for [dexa.js](https://github.com/kaizendorks/dexa#readme).
+
+## Usage
+```
+# publish to a git repo, for example [github](https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line)
+git remote add origin https://github.com/your-user/{{ project.name }}
+git push -u origin main
+
+# Now anyone can install your stack...
+dx stack add {{ project.name }} https://github.com/your-user/{{ project.name }}
+
+# ...and create projects using your stack
+dx init {{ project.name }}
+```
+
+## Development
+```
+# Install the stack from the local folder. (Run the command at the root of this repo)
+dx stack add {{ project.name }} $(pwd)
+
+# now you can test your stack by generating a project
+dx init {{ project.name }} test-project
+
+# you can clean it up with
+dx stack delete {{ project.name }}
+```

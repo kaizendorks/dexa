@@ -10,7 +10,7 @@ import { __reloadStacks, getStacks, deleteStackByName } from '../../src/stack-ma
 
 const testStacks = {
   predefined: {
-    name: 'hello-world'
+    name: 'dexa-stack'
   },
   fromGit: {
     name: 'vue-vite-tailwind',
@@ -23,7 +23,7 @@ const testStacks = {
   fromLocalFolder: {
     // We can add with an alternative name one of the predefined stacks, so we can test we can "dx stack add" from local folders
     name: 'from-local-folder',
-    origin: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
+    origin: path.resolve(config.stacks.predefinedStacksLocation, 'dexa-stack'),
   }
 };
 
@@ -282,10 +282,11 @@ describe('command:dx-stack', () => {
         const stackFiles = await glob(path.resolve(testStacks.fromLocalFolder.origin, '**', '*'), { dot: true, nodir: true });
 
         expect(stackFiles).to.include.members([
-          path.resolve(stackOrigin, 'init/package.json.hbs'),
-          path.resolve(stackOrigin, 'init/index.js'),
-          path.resolve(stackOrigin, 'init/src/greeter.js'),
-          path.resolve(stackOrigin, 'add/unit-test/test/greeter.test.js'),
+          path.resolve(stackOrigin, 'init/README.md.hbs'),
+          path.resolve(stackOrigin, 'init/init/sample-copy.md'),
+          path.resolve(stackOrigin, 'init/init/sample-template.md.hbs.hbs'),
+          path.resolve(stackOrigin, 'add/customizations/dexa.js'),
+          path.resolve(stackOrigin, 'generate/feature/add/__name__/README.md.hbs'),
         ]);
       });
     });

@@ -161,10 +161,10 @@ class Stack {
 
 const predefinedStacks = [
   new Stack({
-    name: 'hello-world',
+    name: 'dexa-stack',
     predefined: true,
-    origin: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
-    locationPath: path.resolve(config.stacks.predefinedStacksLocation, 'hello-world'),
+    origin: path.resolve(config.stacks.predefinedStacksLocation, 'dexa-stack'),
+    locationPath: path.resolve(config.stacks.predefinedStacksLocation, 'dexa-stack'),
   })
 ];
 

@@ -1,0 +1,1 @@
+This file is copied "as is" when `dx init` is invoked
