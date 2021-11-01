@@ -69,14 +69,19 @@ Generate:
 
 ### 0.4.0 - IN PROGRESS
 
+General:
+- Rename the `Template` class as `Command`. Rename its `_render` method as `renderTemplate`
+- Rewrite README docs so instead of "generators" we talk of commands, which can be of 2 types: "stack features" (aka `dx add`) or "code generators" (aka `dx generate`)
+
 Template:
 - Conditional rendering of files:
     - add `makeVariant` method to manually handle scenarios where a template like `generate/api-crud` has subfolders like `/common`, `/mongo` or `/postgre` with some logic based on the project features and/or user provided options to determine which ones to render. This way in the overriding template's action method, the received template object can be used to `const commonTemplate = makeVariant('./common')` and later call `commonTemplate.render(...)` (and similar for the other variants) based on arbitrary logic as implemented by the stack.
-    - allow conditional rendering of template files based on the user options. This could be done either through the file name with a convention like `myfile.hbs$$unitTests=true` meaning this file is only rendered when the user option `unitTests == true`. Alternatively, the extended options in `dexa.js` for a given template could contain an optional function to filter files based on user options (could receive an array of file paths and return a filtered array, or just return an array of regex/globs that template class will use to filter those files which match any regex/glob)
+    - allow conditional rendering of template files based on the user options. This could be done either through the file name with a convention like `unitTests=true$$myfile.hbs` meaning this file is only rendered when the user option `unitTests == true`. Alternatively, the extended options in `dexa.js` for a given template could contain an optional function to filter files based on user options (could receive an array of file paths and return a filtered array, or just return an array of regex/globs that template class will use to filter those files which match any regex/glob)
 
 Init:
+- DONE - override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
 - optionally create new git repo and first commit
-- override default action (render template) in dexa.js. After this overriden action, still have to initialize dexarc project file
+
 
 Add:
 - allow extra config/metadata to be defined in dexa.js.
@@ -94,6 +99,7 @@ General:
 - Should the template class be renamed as `command`? As ways for users to add pre/post action and override the default action of rendering files, it might make more sense. Perhaps the template class should remain as the general way of rendering files.
 
 Init:
+- allow initializing directly from a git repo without first having to `dx install` the stack. This should install the stack in the background, then initialize the new project
 - add custom helpers for the templates via a property in the `dexa.js` file of the stack
 - add predefined helpers like camelCase, kebapCase, and relative path between files
 

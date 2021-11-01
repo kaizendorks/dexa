@@ -47,7 +47,6 @@ class Project {
 
   async addFeature(template, userOptions){
     await template.apply({
-      destinationPath: this.locationPath,
       project: this,
       userOptions,
     });
@@ -87,11 +86,8 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
   });
 
   // render init template
-  await stack.applyInitTemplate({
-    destinationPath,
-    project,
-    userOptions
-  });
+  await stack.applyInitTemplate({ project, userOptions });
+
   // generate dexarc file at project root
   await project.save();
 

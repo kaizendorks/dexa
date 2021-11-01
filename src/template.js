@@ -48,13 +48,13 @@ class Template {
     await this.preAction({project, stack: this.stack, template: this, userOptions});
   }
 
-  async _runPostAction({project, userOptions, renderedFiles}){
+  async _runPostAction({project, userOptions, actionResult}){
     if (!this.postAction) return;
-    await this.postAction({project, stack: this.stack, template: this, userOptions, renderedFiles});
+    await this.postAction({project, stack: this.stack, template: this, userOptions, actionResult});
   }
 
-  async _renderSingleFile(templateFilePath, { destinationPath, project, userOptions }){
-    const destinationFilePath = getFileDestinationPath(this.path, templateFilePath, destinationPath, userOptions);
+  async _renderSingleFile(templateFilePath, { project, userOptions }){
+    const destinationFilePath = getFileDestinationPath(this.path, templateFilePath, project.locationPath, userOptions);
 
     // Ensure the destination directory where the file will be rendered exists
     await ensureDir(destinationFilePath);
@@ -74,12 +74,11 @@ class Template {
     return destinationFilePath;
   }
 
-  async _render({ destinationPath, project, userOptions }){
+  async _render({ project, userOptions }){
     const templateFiles = await this._getTemplateFiles();
 
     const renderedFiles = await Promise.all(templateFiles.map(templateFilePath =>
       this._renderSingleFile(templateFilePath, {
-        destinationPath,
         project,
         userOptions,
       })
@@ -88,14 +87,23 @@ class Template {
     return renderedFiles;
   }
 
-  async apply({ destinationPath, project, userOptions }){
+  async _runAction({project, userOptions}){
+    // By default, we just render the template
+    // However users can override the template's action method with any arbitrary implementation
+    if (this.action) {
+      return await this.action({ project, stack: this.stack, template: this, userOptions });
+    } else {
+      const renderedFiles = await this._render({ project, userOptions });
+      return { renderedFiles };
+    }
+  }
+
+  async apply({ project, userOptions }){
     await this._runPreAction({project, userOptions});
+    const actionResult = await this._runAction({ project, userOptions });
+    await this._runPostAction({project, userOptions, actionResult});
 
-    const renderedFiles = await this._render({ destinationPath, project, userOptions });
-
-    await this._runPostAction({project, userOptions, renderedFiles});
-
-    return renderedFiles;
+    return actionResult;
   }
 
 }

@@ -32,7 +32,6 @@ async function main(){
       // Action implementation
       .action(async (name, userOptions/*, command*/) => {
         await template.apply({
-          destinationPath: currentFolder,
           project,
           userOptions: {name, ...userOptions},
         });

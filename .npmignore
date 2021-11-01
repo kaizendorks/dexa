@@ -5,3 +5,5 @@ test/
 .eslintrc.cjs
 .eslintignore
 release.sh
+config/stacks.json
+stacks/user-defined/

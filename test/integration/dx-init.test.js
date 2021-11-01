@@ -498,6 +498,10 @@ describe('command:dx-init', () => {
         expect(commandResult.stdout).to.include(`Running the preAction method on: project=${projectName}, stack=${customPropertiesStack.name}`);
       });
 
+      it('executes the action custom function', () => {
+        expect(commandResult.stdout).to.include(`Running the action method on: project=${projectName}, stack=${customPropertiesStack.name}`);
+      });
+
       it('executes the postAction custom function', () => {
         expect(commandResult.stdout).to.include(`Running the postAction method on: project=${projectName}, stack=${customPropertiesStack.name}`);
       });
