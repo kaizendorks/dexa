@@ -7,7 +7,7 @@ For example:
 - stack: \{{ stack.name }}
 - override files user option: \{{ userOptions.override }}
 
-If you want to see/debug the properties provided to the template, you can use:
+If you want to see/debug the properties provided to the command's template files, you can use:
 
 \{{{ json this }}}
 
@@ -23,9 +23,9 @@ which will render something like:
     origin: 'git repo or path where the stack came from',
     locationPath: 'location of the stack in the file system',
   },
-  template: {
-    name: 'name of the template',
-    path: 'location of the template in the file system',
+  command: {
+    name: 'name of the command',
+    templatePath: 'location of the command template in the file system',
   },
   userOptions: {
     override: true/false,

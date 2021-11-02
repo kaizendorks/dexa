@@ -14,7 +14,7 @@ program
   .command('add', 'adds stack features to a project')
   .command('generate', 'generates code for common stack elements and adds it to a project')
   .command('init', 'creates a new project using the specified stack')
-  .command('stack', 'manages the different stacks. Each stack is made by a project template and its code generators')
+  .command('stack', 'manages the different stacks. Each stack is made by a project template and its available commands such as code generators or feature installers')
   .parse(process.argv);
 
 // Catch all validation in case user mistypes the command

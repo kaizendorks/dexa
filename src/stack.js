@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import degit from 'degit';
 import config from '../config/dexa.config.js';
-import Template from './template.js';
+import Command from './command.js';
 import { pathToFileURL } from 'url';
 
 const defaultValues = () => ({
@@ -43,7 +43,7 @@ class Stack {
     };
   }
 
-  async loadTemplates(){
+  async loadCommands(){
     // Load the optional dexa.js file defined alongside the stack
     const dexaCustomProperties = await this._loadDexaCustomPropertiesFile();
 
@@ -51,9 +51,9 @@ class Stack {
     Object.assign(this,
       dexaCustomProperties,
       {
-        init: await this._loadInitTemplate(dexaCustomProperties),
-        add: await this._loadAddTemplates(dexaCustomProperties),
-        generate: await this._loadGenerateTemplates(dexaCustomProperties)
+        init: await this._loadInitCommand(dexaCustomProperties),
+        add: await this._loadAddCommands(dexaCustomProperties),
+        generate: await this._loadGenerateCommands(dexaCustomProperties)
       },
       this); // this ensures default propeties like name/predefined/locationPath cannot be overriden in .dexarc.js
   }
@@ -74,41 +74,41 @@ class Stack {
     return Object.assign(emptyProperties, dexaCustomProperties);
   }
 
-  async _loadInitTemplate(dexaCustomProperties) {
-    // do we have a './init' folder or not? If not, the entire "stack folder" is the init template
+  async _loadInitCommand(dexaCustomProperties) {
+    // do we have a './init' folder or not? If not, the entire "stack folder" is the init command
     const initPath = fs.existsSync(path.resolve(this.locationPath, './init')) ?
       './init' :
       './';
 
-    // Create a Template object, merging its properties with any custom ones defined in the stack's dexa.js file
-    return new Template(Object.assign({
+    // Create a Command object, merging its properties with any custom ones defined in the stack's dexa.js file
+    return new Command(Object.assign({
       name: 'init',
       description: null,
-      path: path.resolve(this.locationPath, initPath),
+      templatePath: path.resolve(this.locationPath, initPath),
       stack: this,
       preAction: null,
       postAction: null,
     }, dexaCustomProperties.init));
   }
 
-  async _loadAddTemplates(dexaCustomProperties) {
+  async _loadAddCommands(dexaCustomProperties) {
     let templates = [];
 
-    // Each "dx add" template of the stack should be located inside the "./add" folder of the stack
+    // Each "dx add" command of the stack should be located inside the "./add" folder of the stack
     const templatesLocation = path.resolve(this.locationPath, './add');
     if (!fs.existsSync(templatesLocation)) return templates;
 
-    // Each template has its own subfolder where the template files are defined
+    // Each command has its own subfolder where its template files are defined
     templates = fs.readdirSync(templatesLocation)
       .map(f => path.resolve(this.locationPath, './add', f)) // convert to full paths
       .filter(f => fs.statSync(f).isDirectory()) // ensure they are directories
       .map(f => {
-        // Create a Template object, merging its properties with any custom ones defined in the stack's dexa.js file
-        const name = path.basename(f); // use folder name as the template name
+        // Create a Command object, merging its properties with any custom ones defined in the stack's dexa.js file
+        const name = path.basename(f); // use folder name as the command name
         const customTemplateProperties = dexaCustomProperties.add[name];
-        return new Template(Object.assign({
+        return new Command(Object.assign({
           name,
-          path: f,
+          templatePath: f,
           stack: this,
         }, customTemplateProperties));
       });
@@ -116,24 +116,24 @@ class Stack {
     return templates;
   }
 
-  async _loadGenerateTemplates(dexaCustomProperties) {
+  async _loadGenerateCommands(dexaCustomProperties) {
     let templates = [];
 
-    // Each "dx generate" template of the stack should be located inside the "./generate" folder of the stack
+    // Each "dx generate" command of the stack should be located inside the "./generate" folder of the stack
     const templatesLocation = path.resolve(this.locationPath, './generate');
     if (!fs.existsSync(templatesLocation)) return templates;
 
-    // Each template has its own subfolder where the template files are defined
+    // Each command has its own subfolder where the template files are defined
     templates = fs.readdirSync(templatesLocation)
       .map(f => path.resolve(this.locationPath, './generate', f))
       .filter(f => fs.statSync(f).isDirectory())
       .map(f => {
-        // Create a Template object, merging its properties with any custom ones defined in the stack's dexa.js file
-        const name = path.basename(f); // use folder name as the template name
+        // Create a Command object, merging its properties with any custom ones defined in the stack's dexa.js file
+        const name = path.basename(f); // use folder name as the command name
         const customTemplateProperties = dexaCustomProperties.generate[name];
-        return new Template(Object.assign({
+        return new Command(Object.assign({
           name,
-          path: f,
+          templatePath: f,
           stack: this,
         }, customTemplateProperties));
       });
@@ -141,7 +141,7 @@ class Stack {
     return templates;
   }
 
-  async applyInitTemplate({ project, userOptions }){
+  async runInitCommand({ project, userOptions }){
     return await this.init.apply({
       project,
       userOptions
@@ -177,8 +177,8 @@ Stack.loadAll = async () => {
   const stacks = predefinedStacks.concat(
     userDefinedStacks.map(stackJSON => new Stack(stackJSON)));
 
-  // Load the template definitions for all stacks
-  await Promise.all(stacks.map(stack => stack.loadTemplates()));
+  // Load the command definitions for all stacks
+  await Promise.all(stacks.map(stack => stack.loadCommands()));
 
   return stacks;
 };
@@ -211,7 +211,7 @@ Stack.newFromGit = async (name, origin, isPrivate = false) => {
     private: isPrivate,
     // version:
   });
-  await stack.loadTemplates();
+  await stack.loadCommands();
 
   return stack;
 };
@@ -222,7 +222,7 @@ Stack.newFromLocalFolder = async (name, origin) => {
     origin,
     locationPath: origin,
   });
-  await stack.loadTemplates();
+  await stack.loadCommands();
   return stack;
 };
 

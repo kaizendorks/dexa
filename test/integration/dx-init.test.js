@@ -145,9 +145,9 @@ describe('command:dx-init', () => {
               origin: templatesOnlyStack.location,
               locationPath: templatesOnlyStack.location,
             },
-            template: {
+            command: {
               name: 'init',
-              path: path.resolve(templatesOnlyStack.location, 'init'),
+              templatePath: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -220,9 +220,9 @@ describe('command:dx-init', () => {
               locationPath: templatesOnlyStack.location,
               private: false,
             },
-            template: {
+            command: {
               name: 'init',
-              path: path.resolve(templatesOnlyStack.location, 'init'),
+              templatePath: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -295,9 +295,9 @@ describe('command:dx-init', () => {
               locationPath: templatesOnlyStack.location,
               private: false,
             },
-            template: {
+            command: {
               name: 'init',
-              path: path.resolve(templatesOnlyStack.location, 'init'),
+              templatePath: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: false
@@ -361,9 +361,9 @@ describe('command:dx-init', () => {
               locationPath: templatesOnlyStack.location,
               private: false,
             },
-            template: {
+            command: {
               name: 'init',
-              path: path.resolve(templatesOnlyStack.location, 'init'),
+              templatePath: path.resolve(templatesOnlyStack.location, 'init'),
             },
             userOptions: {
               override: true
@@ -445,9 +445,9 @@ describe('command:dx-init', () => {
               origin: initOnlyStack.location,
               locationPath: initOnlyStack.location,
             },
-            template: {
+            command: {
               name: 'init',
-              path: initOnlyStack.location,
+              templatePath: initOnlyStack.location,
             },
             userOptions: {
               override: false
@@ -545,9 +545,9 @@ describe('command:dx-init', () => {
               origin: customPropertiesStack.location,
               locationPath: customPropertiesStack.location,
             },
-            template: {
+            command: {
               name: 'init',
-              path: path.resolve(customPropertiesStack.location, './init'),
+              templatePath: path.resolve(customPropertiesStack.location, './init'),
             },
             userOptions: {
               override: false,

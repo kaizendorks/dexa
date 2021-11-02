@@ -45,13 +45,13 @@ class Project {
     });
   }
 
-  async addFeature(template, userOptions){
-    await template.apply({
+  async addFeature(command, userOptions){
+    await command.apply({
       project: this,
       userOptions,
     });
 
-    this.features.push(template.name);
+    this.features.push(command.name);
     this.features = [...new Set(this.features)];
     await this.save();
   }
@@ -85,8 +85,8 @@ Project.init = async ({name, stack, destinationPath, userOptions}) => {
     features: []
   });
 
-  // render init template
-  await stack.applyInitTemplate({ project, userOptions });
+  // run init command
+  await stack.runInitCommand({ project, userOptions });
 
   // generate dexarc file at project root
   await project.save();

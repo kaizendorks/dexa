@@ -13,7 +13,7 @@ const testStacks = [
   },
 
   // A stack with no init/add/generate templates
-  // the entire stack folder becomes the init template and there are no add/generate commands
+  // the entire stack folder becomes the init command's template and there are no add/generate commands
   {
     name: 'init-only-stack',
     location: path.resolve(stackFixturesFolder, './init-only-stack'),

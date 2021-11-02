@@ -15,31 +15,31 @@ async function main(){
   const stack = await ensureStackFromProject(project);
   if (!stack) return;
 
-  // Configure one command for each of the "generate" templates
-  stack.generate.forEach(template => {
+  // Configure one CLI command for each of the "code generator" commands
+  stack.generate.forEach(command => {
 
     program
-      .command(template.name)
-      .description(template.description)
+      .command(command.name)
+      .description(command.description)
 
       // Command arguments/options
       .argument('<name>', 'name of the new element being generated <required>')
       .option('-o, --override', 'allow dexa to override any existing files')
 
       // Help
-      .showHelpAfterError(chalk.grey(`(run "dx generate ${template.name} --help" for additional usage information)`))
+      .showHelpAfterError(chalk.grey(`(run "dx generate ${command.name} --help" for additional usage information)`))
 
       // Action implementation
       .action(async (name, userOptions/*, command*/) => {
-        await template.apply({
+        await command.apply({
           project,
           userOptions: {name, ...userOptions},
         });
 
-        console.log(chalk.green(`🚀 Done generating the new "${template.name}"!`));
+        console.log(chalk.green(`🚀 Done generating the new "${command.name}"!`));
       });
 
-      // TODO: allow templates to define an optional method "defineCommand({program, currentFolder, project, stack, template})"
+      // TODO: allow templates to define an optional method "defineCLICommand({program, currentFolder, project, stack, command})"
       //       which will allow users to add their own parameters, options and help text by calling
       //       commander methods such as program.description, program.argument, program.option, program.addHelpText, etc
       //       HOWEVER note that adding parameters changes the signature of the "action" method,
@@ -53,7 +53,7 @@ async function main(){
   await program.parseAsync(process.argv);
 
   if (!stack.generate.length){
-    console.log(chalk.yellow(`The stack ${stack.name} does not define any generate template!`));
+    console.log(chalk.yellow(`The stack ${stack.name} does not define any "generate" command!`));
   }
 }
 

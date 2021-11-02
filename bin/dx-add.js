@@ -15,26 +15,26 @@ async function main(){
   const stack = await ensureStackFromProject(project);
   if (!stack) return;
 
-  // Configure one command for each of the "add" templates
-  stack.add.forEach(template => {
+  // Configure one CLI command for each of the "add feature" commands
+  stack.add.forEach(command => {
 
     program
-      .command(template.name)
-      .description(template.description)
+      .command(command.name)
+      .description(command.description)
 
       // Command arguments/options
       .option('-o, --override', 'allow dexa to override any existing files')
 
       // Help
-      .showHelpAfterError(chalk.grey(`(run "dx add ${template.name} --help" for additional usage information)`))
+      .showHelpAfterError(chalk.grey(`(run "dx add ${command.name} --help" for additional usage information)`))
 
       // Action implementation
       .action(async (userOptions/*, command*/) => {
-        await project.addFeature(template, userOptions);
-        console.log(chalk.green(`🚀 Done adding the feature "${template.name}"!`));
+        await project.addFeature(command, userOptions);
+        console.log(chalk.green(`🚀 Done adding the feature "${command.name}"!`));
       });
 
-      // TODO: allow templates to define an optional method "defineCommand({program, currentFolder, project, stack, template})"
+      // TODO: allow templates to define an optional method "defineCLICommand({program, currentFolder, project, stack, command})"
       //       which will allow users to add their own parameters, options and help text by calling
       //       commander methods such as program.description, program.argument, program.option, program.addHelpText, etc
       //       HOWEVER note that adding parameters changes the signature of the "action" method,
@@ -48,7 +48,7 @@ async function main(){
   await program.parseAsync(process.argv);
 
   if (!stack.add.length){
-    console.log(chalk.yellow(`The stack ${stack.name} does not define any add template!`));
+    console.log(chalk.yellow(`The stack ${stack.name} does not define any "add" command!`));
   }
 }
 

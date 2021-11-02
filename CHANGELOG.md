@@ -70,7 +70,7 @@ Generate:
 ### 0.4.0 - IN PROGRESS
 
 General:
-- Rename the `Template` class as `Command`. Rename its `_render` method as `renderTemplate`
+- Rename the `Template` class as `Command`. Rename its `_render` method as `renderTemplate`. Extract `renderTemplate` and `renderSingleFile` to a new `Template` class that also includes all the current private utilities in `template-utils`
 - Rewrite README docs so instead of "generators" we talk of commands, which can be of 2 types: "stack features" (aka `dx add`) or "code generators" (aka `dx generate`)
 
 Template:
@@ -85,18 +85,15 @@ Init:
 
 Add:
 - allow extra config/metadata to be defined in dexa.js.
-    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
+    - A `defineCLICommand` method receives the commander program so users can add additional parameters/options.
     - override default action as in init template
 
 Generate:
 - allow extra config/metadata to be defined in dexa.js.
-    - A `defineCommand` method receives the commander program so users can add additional parameters/options.
+    - A `defineCLICommand` method receives the commander program so users can add additional parameters/options.
     - override default action as in init template
 
 ### 0.5.0
-
-General:
-- Should the template class be renamed as `command`? As ways for users to add pre/post action and override the default action of rendering files, it might make more sense. Perhaps the template class should remain as the general way of rendering files.
 
 Init:
 - allow initializing directly from a git repo without first having to `dx install` the stack. This should install the stack in the background, then initialize the new project
