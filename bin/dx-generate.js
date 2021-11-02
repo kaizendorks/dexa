@@ -31,7 +31,7 @@ async function main(){
 
       // Action implementation
       .action(async (name, userOptions/*, command*/) => {
-        await command.apply({
+        await command.run({
           project,
           userOptions: {name, ...userOptions},
         });

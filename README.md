@@ -43,9 +43,9 @@ npx dexa stack list
 ## Getting started
 
 ### What is a stack
-Dexa allows users to create and use **stacks**, where each stack is a project template combined with code generators. To better understand what a **stack** is, let's use an existing stack in our test samples.
+Dexa allows users to create and use **stacks**, where each stack is a project template combined with CLI commands such as code generators or feature installers. To better understand what a **stack** is, let's use an existing stack in our test samples.
 
-The [hello-world-stack](test/stack-fixtures/hello-world-stack) creates a _hello world_ Node.js console application. To install it, use the `dx stack add` command, pointing to the git repo where the stack is located
+The [hello-world-stack](test/stack-fixtures/hello-world-stack) creates a _hello world_ Node.js console application. To install the stack, use the `dx stack add` command, pointing to the git repo where the stack is located
 ```
 dx stack add hello-world https://github.com/kaizendorks/dexa/test/stack-fixtures/hello-world-stack
 ```
@@ -66,11 +66,11 @@ Hello World!
 
 Awesome, looks like the stack successfully creates hello world console applications.
 
-Let's now explore the **code generators** available with this stack. Any stack can define 2 flavours of generators:
-- **features**, which are added to your project with the `dx add` command. These are meant to be optional features that are optionally _added once_ to each project
-- **scaffolders**, which encapsulate the boilerplate for elementes of which you can add many to your project
+Let's now explore the **commands** available with this stack. Any stack can define 2 flavours of commands:
+- **feature installers**, which are available through `dx add` in the CLI. These are meant to be optional project features that are optionally _added once_ to each project
+- **code generators**, which are available through `dx generate` in the CLI. Thse encapsulate the boilerplate code for elementes of which you can add many to your project, like a page or a crud-API
 
-> Each stack is defined with a particular domain in mind, so the generators implemented by each stack will be based on that context. For example, a stack for creating web applications with Vue.js and Fastify migh provide _features_ such as `unit-test`, `i18n` or `graphQL`, and _scaffolders_ such as `page`, `component` or `rest-api`.
+> Each stack is defined with a particular domain in mind, so the commands implemented by each stack will be based on that context. For example, a stack for creating web applications with Vue.js and Fastify migh provide _features_ such as `unit-test`, `i18n` or `graphQL`, and _generators_ such as `page`, `component` or `rest-api`.
 
 Let's see them in action. Begin by adding the `unit-test` feature:
 ```
@@ -82,7 +82,7 @@ This has added a very simple unit test to our project. For completeness, let's v
 node ./test/greeter.test.js
 ```
 
-Great, now let's scaffold a new `greeter` so the application says more than `"Hello World"`
+Great, now let's generate the code for a new `greeter`, so the application says more than `"Hello World"`
 ```
 dx generate greeter tutorial
 ```
@@ -94,7 +94,7 @@ Hello World!
 Hello World from the greeter tutorial!
 ```
 
-> Note the parameter `tutorial` provided in the command has been used inside the template of the `greeter` scaffolder.
+> Note the parameter `tutorial` provided in the command has been used inside the template of the `greeter` command.
 
 Yay, the stack can generate code! You can cleanup with:
 ```
@@ -107,17 +107,17 @@ dx stack delete hello-world
 
 The sample hello world stack we have seen above is great to get a sense on how dexa works. But chances are that you are not interested in creating more Node.js hello world applications.
 
-The good news are that you can create your own stacks, and define whatever project templates and generators you want!
+The good news are that you can create your own stacks, and define whatever project templates and commands you want!
 Let's see how to create one.
 
-A stack just needs to follow a certain structure organising the templates:
+A stack just needs to follow a certain structure organising the commands and their templates:
 ```
 /init
   the project template
 /add
-  each feature has a subfolder with its template
+  each feature installer command has a subfolder here that contains the feature template
 /generate
-  each scaffolder has a subfolder with its template
+  each code generator command has a subfolder here with the generator template
 ```
 > This is the basic structure. See the reference guide for more advanced usages
 
@@ -139,7 +139,7 @@ my-stack
     └── sample-template.md.hbs
 ```
 
-> Those various README.md files contain valuable information on how a stack works and how you can update the project template as well as creating your own code generators.
+> Those various README.md files contain valuable information on how a stack works and how you can update the project template as well as creating your own commands.
 
 Can we now test our stack? Yes you can test it directly from its local folder, without publishing it to git.
 
@@ -153,7 +153,7 @@ Now on a separated terminal and folder, try generating a project using your stac
 dx init my-stack test-project
 ```
 
-If you inspect the generated project, you will notice the stack used the template defined inside its ./init folder.
+If you inspect the generated project, you will notice the stack used the project template defined inside its ./init folder.
 ```
 test-project
 ├── sample-copy.md
@@ -165,11 +165,11 @@ Take a moment to inspect the files inside the `./init` template folder. Notice h
 dx init my-stack test-project --override
 ```
 
-### How to add code generators to a stack
+### How to add commands to a stack
 
-Let's now see how to define code generators. Each generator is just a folder containing a template similar to the `./init` template. The template folder for a feature generator lives inside the `./add` folder, while the template folder for a scaffolder lives inside the `./generate` folder.
+Let's now see how to define commands. Each command has a folder containing its code template, similar to the `./init` template. The template folder for a _feature installer_ command lives inside the `./add` folder, while the template folder for a _code generator_ command lives inside the `./generate` folder.
 
-You can manually create these folders, or use the commands provided by the `dexa-stack` stack. For example, lets add a feature template using:
+You can manually create these folders, or use the commands provided by the `dexa-stack` stack. For example, lets add a feature command using:
 ```
 dx generate feature my-feature
 ```
@@ -191,19 +191,19 @@ my-stack
 
 Take a moment to create some files and subfolder inside the `./add/my-feature` folder.
 
-Once you are ready, navigate to the folder where you created the `test-project`. Let's try your feature generator:
+Once you are ready, navigate to the folder where you created the `test-project`. Let's try your feature command:
 ```
 dx add my-feature
 ```
 
-Awesome! You have created your first feature generator.
+Awesome! You have created your first feature command.
 
-Try the same with the scaffolder. Back at the root of the stack definition, run (please bear with me):
+Try the same with the code generator. Back at the root of the stack definition, run (please bear with me):
 ```
 dx generate generator my-generator
 ```
 
-Notice there is a new folder `./generate/my-generator` which contains the template for the new generator.
+Notice there is a new folder `./generate/my-generator` which contains the template for the new command.
 ```
 my-stack
 ├── README.md
@@ -235,7 +235,14 @@ Great! And this finishes the basics on how to create your own stacks.
 
 > Check the reference section for more advanced scenarios like adding extra input parameters or defining functions to run when invoking the code generators.
 
-The only remaining (optional) step is to publish your stack so others can use it. Simply publish the stack to a git repo, allowing anyone with access to that repo to install it using a command like `dx stack add https://github.com/username/reponame`.
+### Publish the stack
+
+The only remaining (optional) step is to publish your stack so others can use it!
+
+Simply publish the stack to a git repo, allowing anyone with access to that repo to install the stack. For example, if you publish your stack as a public Github repo, users of your stack can install it using a command like:
+```
+dx stack add https://github.com/username/reponame
+```
 
 ## Reference
 

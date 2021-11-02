@@ -142,7 +142,7 @@ class Stack {
   }
 
   async runInitCommand({ project, userOptions }){
-    return await this.init.apply({
+    return await this.init.run({
       project,
       userOptions
     });

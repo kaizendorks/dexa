@@ -46,7 +46,7 @@ class Project {
   }
 
   async addFeature(command, userOptions){
-    await command.apply({
+    await command.run({
       project: this,
       userOptions,
     });

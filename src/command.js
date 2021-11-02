@@ -54,7 +54,7 @@ class Command {
     }
   }
 
-  async apply({ project, userOptions }){
+  async run({ project, userOptions }){
     await this._runPreAction({project, userOptions});
     const actionResult = await this._runAction({ project, userOptions });
     await this._runPostAction({project, userOptions, actionResult});

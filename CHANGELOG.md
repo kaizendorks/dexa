@@ -70,8 +70,9 @@ Generate:
 ### 0.4.0 - IN PROGRESS
 
 General:
-- Rename the `Template` class as `Command`. Rename its `_render` method as `renderTemplate`. Extract `renderTemplate` and `renderSingleFile` to a new `Template` class that also includes all the current private utilities in `template-utils`
-- Rewrite README docs so instead of "generators" we talk of commands, which can be of 2 types: "stack features" (aka `dx add`) or "code generators" (aka `dx generate`)
+- DONE - Rename the `Template` class as `Command`. Rename its `_render` method as `renderTemplate`. Extract `renderTemplate` and `renderSingleFile` to a new `Template` class that also includes all the current private utilities in `template-utils`
+- DONE - Rewrite README docs so instead of "generators" we talk of commands, which can be of 2 types: "stack features" (aka `dx add`) or "code generators" (aka `dx generate`)
+- DONE rename the `Command.apply()` method as `Command.run()`
 
 Template:
 - Conditional rendering of files:
